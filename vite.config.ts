@@ -1,25 +1,27 @@
-const { resolve } = require("path");
-const { defineConfig } = require("vite");
+// vite.config.js
+import { resolve } from "path";
+import { defineConfig } from "vite";
 
-module.exports = defineConfig({
+export default defineConfig({
   build: {
     lib: {
-      entry: resolve(__dirname, "src/index.ts"),
+      // Could also be a dictionary or array of multiple entry points
+      entry: resolve(__dirname, "src/main.ts"),
       name: "p5.modulate",
-      fileName: (format) => `p5.modulate.${format}.js`,
-      formats: ["umd"],
+      // the proper extensions will be added
+      fileName: "p5.modulate",
+    },
+    rollupOptions: {
+      // make sure to externalize deps that shouldn't be bundled
+      // into your library
+      external: [],
+      output: {
+        // Provide global variables to use in the UMD build
+        // for externalized deps
+        globals: {
+          // vue: "Vue",
+        },
+      },
     },
   },
-  resolve: {
-    alias: [
-      {
-        find: /^@/,
-        replacement: resolve(__dirname, "src"),
-      },
-    ],
-  },
-  // test: {
-  //   include: ["tests/unit/**/*.test.ts"],
-  //   environment: "happy-dom",
-  // },
 });
