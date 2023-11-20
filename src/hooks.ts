@@ -1,3 +1,7 @@
+import { Lfo } from './Lfo';
+
 export function onDraw() {
-  // console.log("onDraw");
+  for (const lfo of Lfo.Registry) {
+    lfo.advanceTime(deltaTime);
+  }
 }
