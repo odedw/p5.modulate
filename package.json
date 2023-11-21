@@ -1,9 +1,23 @@
 {
   "name": "p5.modulate",
-  "private": true,
   "version": "0.0.1",
+  "description": "A p5 library inspired by modular synthesizers.",
+  "homepage": "https://github.com/odedw/p5.modulate",
+  "license": "MIT",
+  "author": "odedw",
+  "browser": "dist/p5.capture.umd.cjs",
   "files": [
     "dist"
+  ],
+  "keywords": [
+    "sketch",
+    "p5js",
+    "p5",
+    "p5.js",
+    "processing",
+    "art",
+    "creative",
+    "creative-coding"
   ],
   "type": "module",
   "main": "./dist/p5.modulate.umd.cjs",

@@ -36,7 +36,8 @@ export class Lfo {
       0,
       TWO_PI
     );
-    return sin(x);
+    const v = map(sin(x), -1, 1, this.min, this.max);
+    return v;
   }
 }
 
