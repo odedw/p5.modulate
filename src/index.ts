@@ -1,2 +1,3 @@
-export * from "./hooks";
-export * from "./Lfo";
+import * as ModulateHooks from './hooks';
+export const modulateHooks = ModulateHooks;
+export * from './Lfo';

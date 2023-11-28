@@ -54,12 +54,23 @@ function setup() {
     20,
     FREQUENCY / 2
   );
+
+  lfo3 = modulate.createLfo(
+    modulate.SINE,
+    modulate.Timing.Time,
+    FREQUENCY * 3,
+    -0.1,
+    0.1
+  );
 }
 
 function draw() {
   background(0);
   // let coord;
   let c = 255;
+
+  shearX(lfo3.value);
+  shearY(lfo3.value);
   for (const arr of points) {
     fill(c);
     beginShape();
@@ -72,21 +83,4 @@ function draw() {
 
     c = c === 255 ? 0 : 255;
   }
-  // fill(255);
-  // beginShape();
-  // for (p of points1) {
-  //   const { x, y } = polarToCartesian(p.r + p.lfo.value, p.a);
-  //   vertex(x + width / 2, y + height / 2);
-  //   // ellipse(x + width / 2, y + height / 2, 10, 10);
-  // }
-  // endShape(CLOSE);
-
-  // fill(0);
-  // beginShape();
-  // for (p of points2) {
-  //   const { x, y } = polarToCartesian(p.r + p.lfo.value, p.a);
-  //   vertex(x + width / 2, y + height / 2);
-  //   // ellipse(x + width / 2, y + height / 2, 10, 10);
-  // }
-  // endShape(CLOSE);
 }

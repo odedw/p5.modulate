@@ -1,20 +1,26 @@
-export const SINE = 'sine';
-export const TRIANGLE = 'triangle';
-type LFO_TYPE = 'sine' | 'triangle';
-
 export enum Timing {
   Frames,
-  Time,
+  Milliseconds,
   Manual,
+}
+
+export enum Waveform {
+  Sine,
+  Triangle,
+  Square,
+  Sawtooth,
+  Noise,
 }
 
 export class Lfo {
   static Registry: Lfo[] = [];
 
   private elapsedTimeMs: number = 0;
+  private _value?: number;
+  private _previousValue?: number;
 
   constructor(
-    public type: LFO_TYPE,
+    public waveform: Waveform,
     public timing: Timing,
     public frequency: number,
     public min: number,
@@ -28,6 +34,10 @@ export class Lfo {
     this.elapsedTimeMs += timeMs;
   }
 
+  public get previousValue(): number {
+    return this._previousValue || this.value;
+  }
+
   get value(): number {
     const x = map(
       this.elapsedTimeMs + this.phase,
@@ -37,17 +47,19 @@ export class Lfo {
       TWO_PI
     );
     const v = map(sin(x), -1, 1, this.min, this.max);
-    return v;
+    this._previousValue = this._value;
+    this._value = v;
+    return this._value;
   }
 }
 
 export function createLfo(
-  type: LFO_TYPE,
+  waveform: Waveform,
   timing: Timing,
   frequency: number,
   min: number = -1,
   max: number = 1,
   phase: number = 0
 ): Lfo {
-  return new Lfo(type, timing, frequency, min, max, phase);
+  return new Lfo(waveform, timing, frequency, min, max, phase);
 }
