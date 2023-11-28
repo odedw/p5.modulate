@@ -16,8 +16,6 @@ export class Lfo {
   static Registry: Lfo[] = [];
 
   private elapsedTimeMs: number = 0;
-  private _value?: number;
-  private _previousValue?: number;
 
   constructor(
     public waveform: Waveform,
@@ -34,22 +32,58 @@ export class Lfo {
     this.elapsedTimeMs += timeMs;
   }
 
-  public get previousValue(): number {
-    return this._previousValue || this.value;
+  get value(): number {
+    const current = (this.elapsedTimeMs + this.phase) % this.frequency;
+    const x = map(current, 0, this.frequency, 0, TWO_PI);
+    let v;
+    if (this.waveform === Waveform.Sine) {
+      v = map(sin(x), -1, 1, this.min, this.max);
+    } else if (this.waveform === Waveform.Triangle) {
+      v = this.getTriangleValue(x);
+    } else if (this.waveform === Waveform.Square) {
+      v = this.getSquareValue(x);
+    } else if (this.waveform === Waveform.Sawtooth) {
+      v = this.getSawtoothValue(x);
+    } else {
+      v = random(this.min, this.max);
+    }
+
+    return v;
   }
 
-  get value(): number {
-    const x = map(
-      this.elapsedTimeMs + this.phase,
-      0,
-      this.frequency,
-      0,
-      TWO_PI
-    );
-    const v = map(sin(x), -1, 1, this.min, this.max);
-    this._previousValue = this._value;
-    this._value = v;
-    return this._value;
+  private getTriangleValue(x: number): number {
+    let v;
+    if (x < PI * 0.5) {
+      v = map(x, 0, PI * 0.5, 0, 1);
+    } else if (x < PI * 1.5) {
+      v = map(x, PI * 0.5, PI * 1.5, 1, -1);
+    } else {
+      v = map(x, PI * 1.5, TWO_PI, -1, 0);
+    }
+
+    return map(v, -1, 1, this.min, this.max);
+  }
+
+  private getSquareValue(x: number): number {
+    let v;
+    if (x < PI) {
+      v = 1;
+    } else {
+      v = -1;
+    }
+
+    return map(v, -1, 1, this.min, this.max);
+  }
+
+  private getSawtoothValue(x: number): number {
+    let v;
+    if (x < PI) {
+      v = map(x, 0, PI, 0, 1);
+    } else {
+      v = map(x, PI, TWO_PI, -1, 0);
+    }
+
+    return map(v, -1, 1, this.min, this.max);
   }
 }
 
