@@ -14,3 +14,14 @@ function setup() {
 function draw() {
   background(random(255));
 }
+
+let isLooping = true;
+function mouseClicked() {
+  if (isLooping) {
+    noLoop();
+  } else {
+    loop();
+  }
+
+  isLooping = !isLooping;
+}
