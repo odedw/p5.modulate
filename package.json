@@ -1,6 +1,6 @@
 {
   "name": "p5.modulate",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A p5 library inspired by modular synthesizers.",
   "homepage": "https://github.com/odedw/p5.modulate",
   "license": "MIT",
@@ -31,6 +31,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "prepublish": "tsc && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
