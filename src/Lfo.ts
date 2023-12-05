@@ -1,10 +1,6 @@
-export enum Timing {
-  Frames,
-  Milliseconds,
-  Manual,
-}
+import { Timing } from './Timing';
 
-export enum Waveform {
+export enum LfoWaveform {
   Sine,
   Triangle,
   Square,
@@ -16,11 +12,12 @@ export class Lfo {
   static Registry: Lfo[] = [];
 
   private elapsedTimeMs: number = 0;
+  private elapsedFrames: number = 0;
+  private elapsedSteps: number = 0;
 
   constructor(
-    public waveform: Waveform,
-    public timing: Timing,
-    public frequency: number,
+    public waveform: LfoWaveform,
+    public frequency: Timing,
     public min: number,
     public max: number,
     public phase: number
@@ -33,16 +30,19 @@ export class Lfo {
   }
 
   get value(): number {
-    const current = (this.elapsedTimeMs + this.phase) % this.frequency;
-    const x = map(current, 0, this.frequency, 0, TWO_PI);
+    // get mapped x value in the cycle
+    const current = this.elapsedTimeMs + (this.phase % this.frequency.value);
+    const x = map(current, 0, this.frequency.value, 0, TWO_PI);
+    
+    // map x to a value based on the waveform
     let v;
-    if (this.waveform === Waveform.Sine) {
+    if (this.waveform === LfoWaveform.Sine) {
       v = map(sin(x), -1, 1, this.min, this.max);
-    } else if (this.waveform === Waveform.Triangle) {
+    } else if (this.waveform === LfoWaveform.Triangle) {
       v = this.getTriangleValue(x);
-    } else if (this.waveform === Waveform.Square) {
+    } else if (this.waveform === LfoWaveform.Square) {
       v = this.getSquareValue(x);
-    } else if (this.waveform === Waveform.Sawtooth) {
+    } else if (this.waveform === LfoWaveform.Sawtooth) {
       v = this.getSawtoothValue(x);
     } else {
       v = random(this.min, this.max);
@@ -88,12 +88,11 @@ export class Lfo {
 }
 
 export function createLfo(
-  waveform: Waveform,
-  timing: Timing,
-  frequency: number,
+  waveform: LfoWaveform,
+  frequency: Timing,
   min: number = -1,
   max: number = 1,
   phase: number = 0
 ): Lfo {
-  return new Lfo(waveform, timing, frequency, min, max, phase);
+  return new Lfo(waveform, frequency, min, max, phase);
 }
