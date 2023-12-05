@@ -1,4 +1,4 @@
-import { Timing } from './Timing';
+import { Timing, TimingType } from './Timing';
 
 export enum LfoWaveform {
   Sine,
@@ -29,11 +29,27 @@ export class Lfo {
     this.elapsedTimeMs += timeMs;
   }
 
+  advanceFrames(frames: number) {
+    this.elapsedFrames += frames;
+  }
+
   get value(): number {
     // get mapped x value in the cycle
-    const current = this.elapsedTimeMs + (this.phase % this.frequency.value);
+    let current;
+    if (this.frequency.timingType === TimingType.Frames) {
+      current = this.elapsedFrames + (this.phase % this.frequency.value);
+    } else if (this.frequency.timingType === TimingType.Milliseconds) {
+      current = this.elapsedTimeMs + (this.phase % this.frequency.value);
+    } else if (this.frequency.timingType === TimingType.Seconds) {
+      current = this.elapsedTimeMs / 1000 + (this.phase % this.frequency.value);
+    } else if (this.frequency.timingType === TimingType.Manual) {
+      current = this.elapsedSteps + (this.phase % this.frequency.value);
+    } else {
+      return 0;
+    }
+
     const x = map(current, 0, this.frequency.value, 0, TWO_PI);
-    
+
     // map x to a value based on the waveform
     let v;
     if (this.waveform === LfoWaveform.Sine) {
@@ -44,11 +60,17 @@ export class Lfo {
       v = this.getSquareValue(x);
     } else if (this.waveform === LfoWaveform.Sawtooth) {
       v = this.getSawtoothValue(x);
-    } else {
+    } else if (this.waveform === LfoWaveform.Noise) {
       v = random(this.min, this.max);
+    } else {
+      return 0;
     }
 
     return v;
+  }
+
+  public step() {
+    this.elapsedSteps++;
   }
 
   private getTriangleValue(x: number): number {

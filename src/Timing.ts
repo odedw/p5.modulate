@@ -1,4 +1,4 @@
-enum TimingType {
+export enum TimingType {
   Frames,
   Milliseconds,
   Seconds,
@@ -22,7 +22,7 @@ export const LfoTiming = {
     return new Timing(TimingType.Seconds, s);
   },
 
-  Manual: function (): Timing {
-    return new Timing(TimingType.Manual);
+  Manual: function (s: number): Timing {
+    return new Timing(TimingType.Manual, s);
   },
 };
