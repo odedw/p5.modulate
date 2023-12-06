@@ -1,3 +1,6 @@
+/// <reference types="p5/global" />
+/// <reference path="./src/index.ts" />
+
 // constants
 // const RADIUS = 100;
 
