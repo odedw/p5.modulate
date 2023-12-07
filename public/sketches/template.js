@@ -11,11 +11,14 @@ let lfo1, lfo2, lfo3;
 function setup() {
   createCanvas(600, 600);
   stroke(255);
+  rectMode(CENTER);
   //   background(0);
+
+  // saveGif('', getTargetFrameRate() * 60, { units: 'frames' });
 }
 
 function draw() {
-  background(random(255));
+  background(0);
 }
 
 let isLooping = true;
