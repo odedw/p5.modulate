@@ -14,6 +14,7 @@ export class Lfo {
   private elapsedTimeMs: number = 0;
   private elapsedFrames: number = 0;
   private elapsedSteps: number = 0;
+  private _manualValue: number = 0;
 
   constructor(
     public waveform: LfoWaveform,
@@ -34,6 +35,9 @@ export class Lfo {
   }
 
   get value(): number {
+    if (this.frequency.timingType === TimingType.Manual) {
+      return this._manualValue;
+    }
     // get mapped x value in the cycle
     let current;
     if (this.frequency.timingType === TimingType.Frames) {
@@ -69,8 +73,30 @@ export class Lfo {
     return v;
   }
 
-  public step() {
+  public step(): number {
     this.elapsedSteps++;
+
+    // compute new value
+    const current = this.elapsedSteps + (this.phase % this.frequency.value);
+    const x = map(current, 0, this.frequency.value, 0, TWO_PI);
+    let v;
+    if (this.waveform === LfoWaveform.Sine) {
+      v = map(sin(x), -1, 1, this.min, this.max);
+    } else if (this.waveform === LfoWaveform.Triangle) {
+      v = this.getTriangleValue(x);
+    } else if (this.waveform === LfoWaveform.Square) {
+      v = this.getSquareValue(x);
+    } else if (this.waveform === LfoWaveform.Sawtooth) {
+      v = this.getSawtoothValue(x);
+    } else if (this.waveform === LfoWaveform.Noise) {
+      v = random(this.min, this.max);
+    } else {
+      v = 0;
+    }
+
+    this._manualValue = v;
+
+    return this._manualValue;
   }
 
   private getTriangleValue(x: number): number {
