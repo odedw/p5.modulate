@@ -22,7 +22,7 @@ export const LfoTiming = {
     return new Timing(TimingType.Seconds, s);
   },
 
-  Manual: function (s: number): Timing {
+  Manual: function (s: number = 0): Timing {
     return new Timing(TimingType.Manual, s);
   },
 };
