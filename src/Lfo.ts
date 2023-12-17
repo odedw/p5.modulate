@@ -24,6 +24,9 @@ export class Lfo {
     public phase: number
   ) {
     Lfo.Registry.push(this);
+    if (frequency.timingType === TimingType.Manual) {
+      this.step();
+    }
   }
 
   advanceTime(timeMs: number) {
