@@ -4,7 +4,6 @@ const FREQUENCY = 1000;
 const X_FREQUENCY = FREQUENCY * 6;
 const TRAILING_SIZE = 100;
 const BACKGROUND = '#FDF4DB';
-const STROKE = '#000000';
 
 // locals
 const points = [[], [], [], [], []];
@@ -17,7 +16,7 @@ function setup() {
   amplitude = (height - 2 * PADDING) / 9;
   strokeWeight(6);
   smooth();
-  stroke(STROKE);
+  stroke(0);
   xAxis = createLfo(Waveform.Triangle, Timing.Milliseconds, X_FREQUENCY, PADDING, width - PADDING, X_FREQUENCY * 0.75);
 
   // lfos

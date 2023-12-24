@@ -11,9 +11,6 @@ export enum LfoWaveform {
 export class Lfo {
   static Registry: Lfo[] = [];
 
-  private elapsedTimeMs: number = 0;
-  private elapsedFrames: number = 0;
-  private elapsedSteps: number = 0;
   private _manualValue: number = 0;
 
   constructor(
@@ -29,34 +26,13 @@ export class Lfo {
     }
   }
 
-  advanceTime(timeMs: number) {
-    this.elapsedTimeMs += timeMs;
-  }
-
-  advanceFrames(frames: number) {
-    this.elapsedFrames += frames;
-  }
-
   get value(): number {
     if (this.frequency.timingType === TimingType.Manual) {
       return this._manualValue;
     }
 
     // get mapped x value in the cycle
-    let current;
-    if (this.frequency.timingType === TimingType.Frames) {
-      current = (this.elapsedFrames + this.phase) % this.frequency.value;
-    } else if (this.frequency.timingType === TimingType.Milliseconds) {
-      current = (this.elapsedTimeMs + this.phase) % this.frequency.value;
-    } else if (this.frequency.timingType === TimingType.Seconds) {
-      current = (this.elapsedTimeMs / 1000 + this.phase) % this.frequency.value;
-    } else if (this.frequency.timingType === TimingType.Manual) {
-      current = (this.elapsedSteps + this.phase) % this.frequency.value;
-    } else {
-      return 0;
-    }
-
-    const x = map(current, 0, this.frequency.value, 0, TWO_PI);
+    const x = map(this.frequency.elapsed, 0, 1, 0, TWO_PI);
 
     // map x to a value based on the waveform
     let v;
@@ -78,11 +54,11 @@ export class Lfo {
   }
 
   public step(): number {
-    this.elapsedSteps++;
+    this.frequency.advanceManual();
 
     // compute new value
-    const current = this.elapsedSteps + (this.phase % this.frequency.value);
-    const x = map(current, 0, this.frequency.value, 0, TWO_PI);
+    const current = this.frequency.elapsed; //this.elapsedSteps + (this.phase % this.frequency.value);
+    const x = map(current, 0, 1, 0, TWO_PI);
     let v;
     if (this.waveform === LfoWaveform.Sine) {
       v = map(sin(x), -1, 1, this.min, this.max);

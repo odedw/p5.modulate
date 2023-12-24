@@ -1,8 +1,8 @@
-import { Lfo } from './Lfo';
+import { Timing } from './Timing';
 
 export function onDraw() {
-  for (const lfo of Lfo.Registry) {
-    lfo.advanceTime(deltaTime);
-    lfo.advanceFrames(1);
+  for (const t of Timing.Registry) {
+    t.advanceTime(deltaTime);
+    t.advanceFrames(1);
   }
 }
