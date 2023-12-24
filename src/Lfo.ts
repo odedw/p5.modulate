@@ -41,16 +41,17 @@ export class Lfo {
     if (this.frequency.timingType === TimingType.Manual) {
       return this._manualValue;
     }
+
     // get mapped x value in the cycle
     let current;
     if (this.frequency.timingType === TimingType.Frames) {
-      current = this.elapsedFrames + (this.phase % this.frequency.value);
+      current = (this.elapsedFrames + this.phase) % this.frequency.value;
     } else if (this.frequency.timingType === TimingType.Milliseconds) {
-      current = this.elapsedTimeMs + (this.phase % this.frequency.value);
+      current = (this.elapsedTimeMs + this.phase) % this.frequency.value;
     } else if (this.frequency.timingType === TimingType.Seconds) {
-      current = this.elapsedTimeMs / 1000 + (this.phase % this.frequency.value);
+      current = (this.elapsedTimeMs / 1000 + this.phase) % this.frequency.value;
     } else if (this.frequency.timingType === TimingType.Manual) {
-      current = this.elapsedSteps + (this.phase % this.frequency.value);
+      current = (this.elapsedSteps + this.phase) % this.frequency.value;
     } else {
       return 0;
     }
