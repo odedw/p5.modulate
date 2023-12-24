@@ -13,16 +13,10 @@ export class Lfo {
 
   private _manualValue: number = 0;
 
-  constructor(
-    public waveform: LfoWaveform,
-    public frequency: Timing,
-    public min: number,
-    public max: number,
-    public phase: number
-  ) {
+  constructor(public waveform: LfoWaveform, public frequency: Timing, public min: number, public max: number) {
     Lfo.Registry.push(this);
     if (frequency.timingType === TimingType.Manual) {
-      this.step();
+      this.calculateManualValue();
     }
   }
 
@@ -53,11 +47,9 @@ export class Lfo {
     return v;
   }
 
-  public step(): number {
-    this.frequency.advanceManual();
-
+  private calculateManualValue() {
     // compute new value
-    const current = this.frequency.elapsed; //this.elapsedSteps + (this.phase % this.frequency.value);
+    const current = this.frequency.elapsed;
     const x = map(current, 0, 1, 0, TWO_PI);
     let v;
     if (this.waveform === LfoWaveform.Sine) {
@@ -75,7 +67,11 @@ export class Lfo {
     }
 
     this._manualValue = v;
+  }
 
+  public step(): number {
+    this.frequency.advanceManual();
+    this.calculateManualValue();
     return this._manualValue;
   }
 
@@ -115,12 +111,6 @@ export class Lfo {
   }
 }
 
-export function createLfo(
-  waveform: LfoWaveform,
-  frequency: Timing,
-  min: number = -1,
-  max: number = 1,
-  phase: number = 0
-): Lfo {
-  return new Lfo(waveform, frequency, min, max, phase);
+export function createLfo(waveform: LfoWaveform, frequency: Timing, min: number = -1, max: number = 1): Lfo {
+  return new Lfo(waveform, frequency, min, max);
 }

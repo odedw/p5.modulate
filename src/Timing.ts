@@ -11,8 +11,22 @@ export class Timing {
   private elapsedFrames: number = 0;
   private elapsedSteps: number = 0;
 
-  constructor(public readonly timingType: TimingType, public readonly value: number = 0, public loop: boolean = true) {
+  constructor(
+    public readonly timingType: TimingType,
+    public readonly value: number = 0,
+    public phase: number = 0,
+    public loop: boolean = true
+  ) {
     Timing.Registry.push(this);
+    if (this.timingType === TimingType.Manual) {
+      this.elapsedSteps = phase;
+    } else if (this.timingType === TimingType.Frames) {
+      this.elapsedFrames = phase;
+    } else if (this.timingType === TimingType.Milliseconds) {
+      this.elapsedTimeMs = phase;
+    } else if (this.timingType === TimingType.Seconds) {
+      this.elapsedTimeMs = phase * 1000;
+    }
   }
 
   advanceTime(timeMs: number) {
@@ -69,19 +83,19 @@ export class Timing {
 }
 
 export const LfoTiming = {
-  Frames: function (frames: number): Timing {
-    return new Timing(TimingType.Frames, frames);
+  Frames: function (frames: number, phase: number = 0): Timing {
+    return new Timing(TimingType.Frames, frames, phase);
   },
 
-  Milliseconds: function (ms: number): Timing {
-    return new Timing(TimingType.Milliseconds, ms);
+  Milliseconds: function (ms: number, phase: number = 0): Timing {
+    return new Timing(TimingType.Milliseconds, ms, phase);
   },
 
-  Seconds: function (s: number): Timing {
-    return new Timing(TimingType.Seconds, s);
+  Seconds: function (s: number, phase: number = 0): Timing {
+    return new Timing(TimingType.Seconds, s, phase);
   },
 
-  Manual: function (s: number = 0): Timing {
-    return new Timing(TimingType.Manual, s);
+  Manual: function (s: number = 0, phase: number = 0): Timing {
+    return new Timing(TimingType.Manual, s, phase);
   },
 };
