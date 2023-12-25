@@ -1,5 +1,4 @@
 /// <reference types="p5/global" />
-/// <reference path="./src/index.ts" />
 
 // constants
 // const RADIUS = 100;
@@ -13,8 +12,6 @@ function setup() {
   stroke(255);
   rectMode(CENTER);
   //   background(0);
-
-  // saveGif('', getTargetFrameRate() * 60, { units: 'frames' });
 }
 
 function draw() {
