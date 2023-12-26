@@ -28,3 +28,7 @@ function mouseClicked() {
 
   isLooping = !isLooping;
 }
+
+P5Capture.setDefaultOptions({
+  disableUi: true,
+});

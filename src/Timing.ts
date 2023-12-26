@@ -10,22 +10,32 @@ export class Timing {
   private elapsedTimeMs: number = 0;
   private elapsedFrames: number = 0;
   private elapsedSteps: number = 0;
+  private _active: boolean = false;
 
   constructor(
     public readonly timingType: TimingType,
     public readonly value: number = 0,
-    public phase: number = 0,
-    public loop: boolean = true
+    public readonly phase: number = 0,
+    public loop: boolean = true,
+    public autoTrigger: boolean = true
   ) {
     Timing.Registry.push(this);
+    this.reset();
+  }
+
+  reset() {
+    if (this.autoTrigger) {
+      this._active = true;
+    }
+
     if (this.timingType === TimingType.Manual) {
-      this.elapsedSteps = phase;
+      this.elapsedSteps = this.phase;
     } else if (this.timingType === TimingType.Frames) {
-      this.elapsedFrames = phase;
+      this.elapsedFrames = this.phase;
     } else if (this.timingType === TimingType.Milliseconds) {
-      this.elapsedTimeMs = phase;
+      this.elapsedTimeMs = this.phase;
     } else if (this.timingType === TimingType.Seconds) {
-      this.elapsedTimeMs = phase * 1000;
+      this.elapsedTimeMs = this.phase * 1000;
     }
   }
 
@@ -37,6 +47,7 @@ export class Timing {
         this.elapsedTimeMs = this.elapsedTimeMs % normalizedValue;
       } else {
         this.elapsedTimeMs = normalizedValue;
+        this._active = false;
       }
     }
   }
@@ -48,6 +59,7 @@ export class Timing {
         this.elapsedFrames = this.elapsedFrames % this.value;
       } else {
         this.elapsedFrames = this.value;
+        this._active = false;
       }
     }
   }
@@ -59,6 +71,7 @@ export class Timing {
         this.elapsedSteps = this.elapsedSteps % this.value;
       } else {
         this.elapsedSteps = this.value;
+        this._active = false;
       }
     }
   }
@@ -67,6 +80,11 @@ export class Timing {
    * Returns the elapsed percentage of the timing value.
    */
   get elapsed(): number {
+    // zero timers are always done
+    if (this.value === 0) {
+      return 1;
+    }
+
     let result = 0;
     if (this.timingType === TimingType.Frames) {
       result = this.elapsedFrames / this.value;
@@ -80,22 +98,42 @@ export class Timing {
 
     return result;
   }
+
+  get finished(): boolean {
+    return !this._active && this.elapsed === 1;
+  }
+
+  get active(): boolean {
+    return this._active;
+  }
+
+  activate() {
+    this._active = true;
+  }
+
+  deactivate() {
+    this._active = false;
+  }
 }
 
-export const LfoTiming = {
-  Frames: function (frames: number, phase: number = 0): Timing {
+export const TimingFactory = {
+  frames: function (frames: number, phase: number = 0): Timing {
     return new Timing(TimingType.Frames, frames, phase);
   },
 
-  Milliseconds: function (ms: number, phase: number = 0): Timing {
+  milliseconds: function (ms: number, phase: number = 0): Timing {
     return new Timing(TimingType.Milliseconds, ms, phase);
   },
 
-  Seconds: function (s: number, phase: number = 0): Timing {
+  seconds: function (s: number, phase: number = 0): Timing {
     return new Timing(TimingType.Seconds, s, phase);
   },
 
-  Manual: function (s: number = 0, phase: number = 0): Timing {
-    return new Timing(TimingType.Manual, s, phase);
+  manual: function (s: number = 0, phase: number = 0, loop: boolean = true, autoTrigger: boolean = true): Timing {
+    return new Timing(TimingType.Manual, s, phase, loop, autoTrigger);
+  },
+
+  zero: function () {
+    return TimingFactory.manual(0, 0, false, false);
   },
 };
