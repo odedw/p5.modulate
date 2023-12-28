@@ -42,19 +42,23 @@ export class Timing {
   advanceTime(timeMs: number) {
     this.elapsedTimeMs += timeMs;
     const normalizedValue = this.timingType === TimingType.Milliseconds ? this.value : this.value * 1000;
-    if (this.elapsedTimeMs >= normalizedValue) {
+    if (
+      (this.timingType === TimingType.Milliseconds || this.timingType === TimingType.Seconds) &&
+      this.elapsedTimeMs >= normalizedValue
+    ) {
       if (this.loop) {
         this.elapsedTimeMs = this.elapsedTimeMs % normalizedValue;
       } else {
         this.elapsedTimeMs = normalizedValue;
-        this._active = false;
+        this.deactivate();
       }
     }
   }
 
   advanceFrames(frames: number) {
     this.elapsedFrames += frames;
-    if (this.elapsedFrames >= this.value) {
+
+    if (this.timingType === TimingType.Frames && this.elapsedFrames >= this.value) {
       if (this.loop) {
         this.elapsedFrames = this.elapsedFrames % this.value;
       } else {
@@ -66,12 +70,12 @@ export class Timing {
 
   advanceManual(steps: number = 1) {
     this.elapsedSteps += steps;
-    if (this.elapsedSteps >= this.value) {
+    if (this.timingType === TimingType.Manual && this.elapsedSteps >= this.value) {
       if (this.loop) {
         this.elapsedSteps = this.elapsedSteps % this.value;
       } else {
         this.elapsedSteps = this.value;
-        this._active = false;
+        this.deactivate();
       }
     }
   }
@@ -117,8 +121,8 @@ export class Timing {
 }
 
 export const TimingFactory = {
-  frames: function (frames: number, phase: number = 0): Timing {
-    return new Timing(TimingType.Frames, frames, phase);
+  frames: function (frames: number, phase: number = 0, loop: boolean = true): Timing {
+    return new Timing(TimingType.Frames, frames, phase, loop);
   },
 
   milliseconds: function (ms: number, phase: number = 0): Timing {
