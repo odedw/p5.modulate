@@ -3,6 +3,7 @@
 // constants
 const NUM_COLS = 26;
 const NUM_ROWS = 26;
+const NUM_MOVES = 20;
 
 // locals
 const particles = [];
@@ -13,9 +14,40 @@ let chosen = [];
 let rowDir, colDir;
 let rows, cols;
 let TILE_SIZE;
+let moves = [];
 
 function preload() {
   img = loadImage('public/assets/AlphonseMariaMucha1.jpg');
+}
+
+function randomizeStart() {
+  for (let i = 0; i < NUM_MOVES; i++) {
+    randomizeNextMove();
+    moves.push({
+      rowDir: rowDir.map((r) => (r *= -1)),
+      colDir: colDir.map((c) => (c *= -1)),
+    });
+    for (const p of particles) {
+      p.dx = rowDir[p.row] * TILE_SIZE;
+      p.dy = colDir[p.col] * TILE_SIZE;
+      // p.col += rowDir[p.col];
+      // if (p.col === NUM_COLS) {
+      //   p.col = 0;
+      // } else if (p.col === -1) {
+      //   p.col = NUM_COLS - 1;
+      // }
+      // p.row += colDir[p.row];
+      // if (p.row === NUM_ROWS) {
+      //   p.row = 0;
+      // } else if (p.row === -1) {
+      //   p.row = NUM_ROWS - 1;
+      // }
+    }
+    commitMove();
+  }
+  moves.reverse();
+  colDir = moves[currentMove].colDir;
+  rowDir = moves[currentMove].rowDir;
 }
 
 function setup() {
@@ -43,10 +75,11 @@ function setup() {
     }
   }
 
+  randomizeStart();
+
   // fill directions with zeros
 
   timer = Timing.frames(30, 0, false);
-  randomizeNextMove();
   //   background(0);
 }
 
@@ -111,6 +144,7 @@ function updateDeltas() {
   }
 }
 
+let currentMove = 0;
 function draw() {
   background(0);
   for (const p of particles) {
@@ -131,8 +165,12 @@ function draw() {
 
   if (timer.finished) {
     commitMove();
-    randomizeNextMove();
-    timer.reset();
+    currentMove++;
+    if (currentMove < moves.length) {
+      colDir = moves[currentMove].colDir;
+      rowDir = moves[currentMove].rowDir;
+      timer.reset();
+    }
   } else {
     updateDeltas();
   }
