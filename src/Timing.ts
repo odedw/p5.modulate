@@ -103,6 +103,10 @@ export class Timing {
     return result;
   }
 
+  get isActive(): boolean {
+    return this._active;
+  }
+
   get finished(): boolean {
     return !this._active && this.elapsed === 1;
   }
