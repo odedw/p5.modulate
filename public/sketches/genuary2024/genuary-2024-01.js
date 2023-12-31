@@ -3,13 +3,13 @@
 // constants
 const NUM_PARTICLES = 20;
 const PARTICLE_SIZE = 5;
-const RADIUS_INCREMENT = 1;
-const FRAMES_WAITED = 30;
 
 // locals
 let particles = [];
-let state = 'compute';
 let t;
+let strokeLfo;
+let r = 1;
+
 class Particle {
   constructor(x, y, r) {
     this.x = x;
@@ -28,11 +28,8 @@ class Particle {
     }
   }
 }
-let r = 1;
-function computeConnections() {
-  // let r = 1;
 
-  // while (true) {
+function computeConnections() {
   const randomOrderParticlesWithoutAttractor = particles
     .filter((p) => !p.attractor)
     .toSorted(() => (Math.random() < 0.5 ? -1 : 1));
@@ -56,21 +53,18 @@ function computeConnections() {
       }
     }
   }
-  // r += RADIUS_INCREMENT;
-  // }
 }
 
 function reset() {
   r = 0;
   particles = [];
   for (let i = 0; i < random(NUM_PARTICLES / 2, NUM_PARTICLES); i++) {
-    particles.push(new Particle(random(width * 0.0, width * 1), random(height * 0.0, height * 1)));
+    particles.push(new Particle(random(width * 0.1, width * 0.9), random(height * 0.1, height * 0.9)));
   }
 
   while (r < width) {
-    // state = 'draw';
     computeConnections();
-    r += RADIUS_INCREMENT;
+    r += 1;
   }
   prepareDrawState();
 }
@@ -85,37 +79,18 @@ function prepareDrawState() {
 
 function setup() {
   createCanvas(600, 600);
-  stroke(255);
+  strokeWeight(1);
   rectMode(CENTER);
   reset();
-  //   background(0);
-  // noLoop();
   background(0);
+
+  strokeLfo = createLfo(LfoWaveform.Sine, Timing.frames(240), 150, 255);
 }
 
 let framesWaited = 0;
 let framesFaded = 0;
 function draw() {
-  fill(255);
-
-  // if (state === 'compute') {
-  //   computeConnections();
-  //   for (const p of particles) {
-  //     // p.x += random(-1, 1);
-  //     // p.y += random(-1, 1);
-  //     fill(p.attractor ? 'red' : 'white');
-  //     ellipse(p.x, p.y, PARTICLE_SIZE);
-
-  //     if (p.attractor) {
-  //       line(p.x, p.y, p.attractor.x, p.attractor.y);
-  //     }
-  //   }
-  //   for (const p of particles.filter((p) => !p.attractor)) {
-  //     noFill();
-  //     ellipse(p.x, p.y, r * 2);
-  //   }
-  // r += RADIUS_INCREMENT;
-  // } else if (state === 'draw') {
+  stroke(strokeLfo.value);
   if (t.isActive) {
     for (const p of particles) {
       fill(p.attractor ? 'red' : 'white');
@@ -139,28 +114,20 @@ function draw() {
     framesWaited += 1;
   }
 
-  if (framesWaited >= FRAMES_WAITED) {
-    background(0, 0, 0, 7);
+  if (framesWaited >= 15) {
+    background(0, 0, 0, 5);
     framesFaded += 1;
   }
 
-  if (framesFaded >= 30) {
+  if (framesFaded >= 45) {
     reset();
     framesWaited = 0;
     framesFaded = 0;
   }
-  // }
-
-  // if (r > width / 2) {
-  //   prepareDrawState();
-  //   state = 'draw';
-  // }
 }
 
 let isLooping = true;
 function mouseClicked() {
-  // reset();
-  // loop();
 
   if (isLooping) {
     noLoop();
