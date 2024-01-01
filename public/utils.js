@@ -25,5 +25,68 @@ function createColorLfo() {
     return { r: color.srgb.r * 255, g: color.srgb.g * 255, b: color.srgb.b * 255 };
   };
 
+  obj.fill = function () {
+    const color = obj.color();
+    fill(color.r, color.g, color.b);
+  };
+
+  obj.stroke = function () {
+    const color = obj.color();
+    stroke(color.r, color.g, color.b);
+  };
+
   return obj;
+}
+
+class Matrix {
+  constructor(cols, rows) {
+    this._matrix = [];
+
+    for (let i = 0; i < cols; i++) {
+      this._matrix.push([]);
+      for (let j = 0; j < rows; j++) {
+        this._matrix[i].push(0);
+      }
+    }
+  }
+
+  get(x, y) {
+    return this._matrix[x][y];
+  }
+
+  set(x, y, value) {
+    this._matrix[x][y] = value;
+  }
+
+  get width() {
+    return this._matrix.length;
+  }
+
+  get height() {
+    return this._matrix[0].length;
+  }
+
+  getNeighbors(x, y) {
+    const neighbors = [];
+
+    for (let i = x - 1; i <= x + 1; i++) {
+      if (i < 0 || i >= this.width) {
+        continue;
+      }
+
+      for (let j = y - 1; j <= y + 1; j++) {
+        if (j < 0 || j >= this.height) {
+          continue;
+        }
+
+        if (i === x && j === y) {
+          continue;
+        }
+
+        neighbors.push({ x: i, y: j, value: this.get(i, j) });
+      }
+    }
+
+    return neighbors;
+  }
 }
