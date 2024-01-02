@@ -1,9 +1,9 @@
 /// <reference types="p5/global" />
 
 // constants
-const NUM_COLS = 26;
-const NUM_ROWS = 26;
-const NUM_MOVES = 20;
+const NUM_COLS = 23;
+const NUM_ROWS = 23;
+const NUM_MOVES = 23;
 
 // locals
 const particles = [];
@@ -17,7 +17,7 @@ let TILE_SIZE;
 let moves = [];
 
 function preload() {
-  img = loadImage('public/assets/AlphonseMariaMucha1.jpg');
+  img = loadImage('public/assets/ThePinkCloud_HenriEdmondCross.jpg');
 }
 
 function randomizeStart() {

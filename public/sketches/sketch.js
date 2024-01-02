@@ -5,10 +5,11 @@
 
 // locals
 const points = [];
+let img;
 let lfo1, lfo2, lfo3;
 
 function setup() {
-  createCanvas(600, 600);
+  createCanvas(700, 700);
   stroke(255);
   rectMode(CENTER);
   //   background(0);
