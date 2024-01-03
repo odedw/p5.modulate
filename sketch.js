@@ -1,118 +1,171 @@
 /// <reference types="p5/global" />
 
 // constants
-const TILE_WIDTH = 40;
-const TILE_HEIGHT = 40;
-const WIDTH_RATIO = 635 / 1400;
-const HEIGHT_RATIO = 625 / 1400;
-const START_X_RATIO = 395 / 1400;
-const START_Y_RATIO = 283 / 1400;
+// const RADIUS = 100;
+const SIZE = 70;
+const NUM_SHAPES_PER_ROW = 5;
+const PADDING = 70;
+const SNAPSHOT_INTERVAL = 10;
+const FREQUENCY = 240;
+const MAX_SNAPSHOTS = 10;
+const PHASE_RATIO = 2;
 
 // locals
-let img;
-let tiles;
-let startX = 0;
-let startY = 0;
-let frame;
-let iterations = 0;
+let brLfo, xLfo, yLfo, bezierLfo, colorLfo, diamondLfo;
+let stage = 'square';
+let stageFuncs = {};
+const snapshots = [];
+const shapes = [];
 
-class Tile {
-  constructor(x, y, w, h, img, destX, destY, timing) {
+class Shape {
+  constructor(x, y, phase) {
     this.x = x;
     this.y = y;
-    this.width = w;
-    this.height = h;
-    this.img = img;
-    this.destX = destX;
-    this.destY = destY;
-    this.timing = timing;
+    this.stage = 'square';
+    this.size = SIZE;
+    this.phase = phase;
+    this.createShapeLfos();
+  }
+
+  createShapeLfos() {
+    this.brLfo = createLfo(
+      LfoWaveform.Triangle,
+      Timing.frames(FREQUENCY, FREQUENCY * 0.75 + this.phase),
+      0,
+      this.size / 2
+    );
+    this.bezierLfo = createLfo(LfoWaveform.Triangle, Timing.frames(FREQUENCY, FREQUENCY * 0.75 + this.phase), 0, 1);
+    this.diamondLfo = createLfo(LfoWaveform.Triangle, Timing.frames(FREQUENCY, FREQUENCY * 0.75 + this.phase), 0, 1);
   }
 
   draw() {
-    const currentX = lerp(this.x, this.destX, this.timing.elapsed);
-    const currentY = lerp(this.y, this.destY, this.timing.elapsed);
-    const currentWidth = lerp(this.width, this.width * WIDTH_RATIO, this.timing.elapsed);
-    const currentHeight = lerp(this.height, this.height * HEIGHT_RATIO, this.timing.elapsed);
-    frame.image(this.img, currentX, currentY, currentWidth, currentHeight);
+    push();
+    translate(this.x, this.y);
+    if (this.stage === 'square') {
+      drawSquare(this.brLfo.value, this.size);
 
-    return this.timing.finished;
-  }
-}
-function preload() {
-  img = loadImage('public/assets/genuary-03-canvas.png');
-}
+      if (this.brLfo.value >= this.size / 2) {
+        this.stage = 'circle';
+        this.createShapeLfos();
+      }
+    } else if (this.stage === 'circle') {
+      drawCircle(this.bezierLfo.value, this.size);
 
-function createTiles() {
-  tiles = [];
+      if (this.bezierLfo.value >= 1) {
+        this.stage = 'diamond';
+        this.createShapeLfos();
+      }
+    } else if (this.stage === 'diamond') {
+      drawDiamond(this.diamondLfo.value, this.size);
 
-  let row = 0;
-  let nextTileWidth = currentTileWidth * WIDTH_RATIO;
-  let nextTileHeight = currentTileHeight * HEIGHT_RATIO;
-  for (let y = 0; y < frame.height; y += currentTileHeight) {
-    let col = 0;
-    for (let x = 0; x < frame.width; x += currentTileWidth) {
-      const tileImg = scaledImage.get(col * TILE_WIDTH, row * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
-      const destX = START_X_RATIO * frame.width + col * nextTileWidth;
-      const destY = START_Y_RATIO * frame.height + row * nextTileHeight;
-      tiles.push(
-        new Tile(
-          x,
-          y,
-          currentTileWidth,
-          currentTileHeight,
-          tileImg,
-          destX,
-          destY,
-          Timing.frames(int(random(60, 180)), 0, false)
-        )
-      );
-      col++;
+      if (this.diamondLfo.value >= 1) {
+        this.stage = 'square';
+        this.createShapeLfos();
+      }
     }
-    row++;
+    pop();
   }
-
-  return tiles;
 }
-let currentTileWidth, currentTileHeight, currentImage, targetImage, scaledImage;
+
+function drawBezierOvalQuarter(sizeX, sizeY, value) {
+  beginShape();
+  vertex(-sizeX, 0);
+  const cp1y = map(value, 0, 1, -0.552 * sizeY, 0);
+  const cp2x = map(value, 0, 1, -0.552 * sizeX, 0);
+  bezierVertex(-sizeX, cp1y, cp2x, -sizeY, 0, -sizeY);
+  endShape();
+}
+
+function drawBezierOval(sizeX, sizeY, value) {
+  drawBezierOvalQuarter(-sizeX, sizeY, value);
+  drawBezierOvalQuarter(sizeX, sizeY, value);
+  drawBezierOvalQuarter(sizeX, -sizeY, value);
+  drawBezierOvalQuarter(-sizeX, -sizeY, value);
+}
+
+function drawCircle(value, size) {
+  drawBezierOval(size / 2, size / 2, value);
+}
+
+function drawSquare(value, size) {
+  square(0, 0, size, value);
+}
+
+function drawDiamond(value, size) {
+  rotate(map(value, 0, 1, PI / 4, PI));
+  square(0, 0, map(value, 0, 1, sqrt((size * size) / 2), size));
+}
+
 function setup() {
-  createCanvas(700, 700);
+  createCanvas(600, 600);
   stroke(255);
-  scaledImage = createGraphics(width, height);
-  scaledImage.image(img, 0, 0, width, height);
-  frame = createGraphics(width, height);
-  frame.image(img, 0, 0, width, height);
-  currenCanvastHeight = height;
-  currentCanvasWidth = width;
-  currentTileWidth = TILE_WIDTH;
-  currentTileHeight = TILE_HEIGHT;
-  currentImage = img;
-  targetImage = img;
-  createTiles(img);
+  strokeWeight(2);
+  rectMode(CENTER);
+  noFill();
+
+  // createShapeLfos();
+  // colorLfo = createColorLfo();
+  // xLfo = createLfo(LfoWaveform.Sine, Timing.frames(FREQUENCY * 2, FREQUENCY * 0.75), width * 0.25, width * 0.75);
+  // yLfo = createLfo(LfoWaveform.Sine, Timing.frames(FREQUENCY * 4, FREQUENCY * 0.75), width * 0.25, width * 0.75);
+
+  // stageFuncs = {
+  //   square: stepSquare,
+  //   circle: stepCircle,
+  //   diamond: stepDiamond,
+  // };
+  const points = generateGrid(NUM_SHAPES_PER_ROW, NUM_SHAPES_PER_ROW, width - PADDING * 2, height - PADDING * 2);
+
+  let index = 0;
+
+  for (const point of points) {
+    shapes.push(new Shape(point.x + PADDING - SIZE / 8, point.y + PADDING, 0));
+    shapes.push(new Shape(point.x + PADDING, point.y + PADDING, 0));
+    shapes.push(new Shape(point.x + PADDING + SIZE / 8, point.y + PADDING, 0));
+    index++;
+  }
+  background(0);
 }
 
 function draw() {
-  frame.image(img, 0, 0, frame.width, frame.height);
-  let done = true;
-  for (const tile of tiles) {
-    let res = tile.draw();
-    done = done && res;
+  background(0, 0, 0);
+
+  // rect(50, 50, width - 100, height - 100);
+  for (const shape of shapes) {
+    shape.draw();
   }
+  // stroke(c.r, c.g, c.b);
+  // push();
+  // // translate(xLfo.value, yLfo.value);
+  // translate(width / 2, height / 2);
 
-  image(frame, startX, startY, frame.width, frame.height);
+  // const value = stageFuncs[stage]();
+  // pop();
 
-  if (done) {
-    if (++iterations === 6) {
-      noLoop();
-    }
-    // currentImage = frame.get();
-    startX += START_X_RATIO * frame.width;
-    startY += START_Y_RATIO * frame.height;
-    frame = createGraphics(frame.width * WIDTH_RATIO, frame.height * HEIGHT_RATIO);
+  // for (const s of snapshots) {
+  //   push();
+  //   translate(s.x, s.y);
+  //   if (s.stage === 'square') {
+  //     drawSquare(s.value);
+  //   } else if (s.stage === 'circle') {
+  //     drawCircle(s.value);
+  //   } else if (s.stage === 'diamond') {
+  //     drawDiamond(s.value);
+  //   }
+  //   pop();
+  // }
 
-    currentTileWidth *= WIDTH_RATIO;
-    currentTileHeight *= HEIGHT_RATIO;
-    createTiles();
-  }
+  // if (frameCount % SNAPSHOT_INTERVAL === 0) {
+  //   snapshots.push({
+  //     x: xLfo.value,
+  //     y: yLfo.value,
+  //     size: SIZE,
+  //     stage,
+  //     value,
+  //   });
+  //   if (snapshots.length > MAX_SNAPSHOTS) {
+  //     // snapshots.shift();
+  //   }
+  // }
 }
 
 let isLooping = true;

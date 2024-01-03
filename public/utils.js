@@ -90,3 +90,15 @@ class Matrix {
     return neighbors;
   }
 }
+
+function generateGrid(cols, rows, w, h) {
+  let points = [];
+  for (let col = 0; col < cols; col++) {
+    for (let row = 0; row < rows; row++) {
+      let x = col * (w / (cols - 1));
+      let y = row * (h / (rows - 1));
+      if (x >= 0 && x <= w && y >= 0 && y <= h) points.push({ x: int(x), y: int(y) });
+    }
+  }
+  return points;
+}
