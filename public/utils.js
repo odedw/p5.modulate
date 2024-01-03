@@ -97,7 +97,7 @@ function generateGrid(cols, rows, w, h) {
     for (let row = 0; row < rows; row++) {
       let x = col * (w / (cols - 1));
       let y = row * (h / (rows - 1));
-      if (x >= 0 && x <= w && y >= 0 && y <= h) points.push({ x: int(x), y: int(y) });
+      if (x >= 0 && x <= w && y >= 0 && y <= h) points.push({ x: int(x), y: int(y), col, row });
     }
   }
   return points;

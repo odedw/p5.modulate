@@ -1,8 +1,7 @@
 /// <reference types="p5/global" />
 
 // constants
-// const RADIUS = 100;
-const SIZE = 70;
+const SIZE = 75;
 const NUM_SHAPES_PER_ROW = 5;
 const PADDING = 70;
 const SNAPSHOT_INTERVAL = 10;
@@ -18,24 +17,19 @@ const snapshots = [];
 const shapes = [];
 
 class Shape {
-  constructor(x, y, phase) {
+  constructor(x, y, phase, size) {
     this.x = x;
     this.y = y;
     this.stage = 'square';
-    this.size = SIZE;
+    this.size = size || SIZE;
     this.phase = phase;
-    this.createShapeLfos();
+    this.createShapeLfos(phase);
   }
 
-  createShapeLfos() {
-    this.brLfo = createLfo(
-      LfoWaveform.Triangle,
-      Timing.frames(FREQUENCY, FREQUENCY * 0.75 + this.phase),
-      0,
-      this.size / 2
-    );
-    this.bezierLfo = createLfo(LfoWaveform.Triangle, Timing.frames(FREQUENCY, FREQUENCY * 0.75 + this.phase), 0, 1);
-    this.diamondLfo = createLfo(LfoWaveform.Triangle, Timing.frames(FREQUENCY, FREQUENCY * 0.75 + this.phase), 0, 1);
+  createShapeLfos(phase = 0) {
+    this.brLfo = createLfo(LfoWaveform.Triangle, Timing.frames(FREQUENCY, FREQUENCY * 0.75 + phase), 0, this.size / 2);
+    this.bezierLfo = createLfo(LfoWaveform.Triangle, Timing.frames(FREQUENCY, FREQUENCY * 0.75), 0, 1);
+    this.diamondLfo = createLfo(LfoWaveform.Triangle, Timing.frames(FREQUENCY, FREQUENCY * 0.75), 0, 1);
   }
 
   draw() {
@@ -103,24 +97,15 @@ function setup() {
   rectMode(CENTER);
   noFill();
 
-  // createShapeLfos();
-  // colorLfo = createColorLfo();
-  // xLfo = createLfo(LfoWaveform.Sine, Timing.frames(FREQUENCY * 2, FREQUENCY * 0.75), width * 0.25, width * 0.75);
-  // yLfo = createLfo(LfoWaveform.Sine, Timing.frames(FREQUENCY * 4, FREQUENCY * 0.75), width * 0.25, width * 0.75);
-
-  // stageFuncs = {
-  //   square: stepSquare,
-  //   circle: stepCircle,
-  //   diamond: stepDiamond,
-  // };
   const points = generateGrid(NUM_SHAPES_PER_ROW, NUM_SHAPES_PER_ROW, width - PADDING * 2, height - PADDING * 2);
 
   let index = 0;
 
-  for (const point of points) {
-    shapes.push(new Shape(point.x + PADDING - SIZE / 8, point.y + PADDING, 0));
-    shapes.push(new Shape(point.x + PADDING, point.y + PADDING, 0));
-    shapes.push(new Shape(point.x + PADDING + SIZE / 8, point.y + PADDING, 0));
+  for (let i = points.length - 1; i >= 0; i--) {
+    const point = points[i];
+    shapes.push(new Shape(point.x + PADDING - SIZE / 8, point.y + PADDING, index * PHASE_RATIO));
+    shapes.push(new Shape(point.x + PADDING, point.y + PADDING, index * PHASE_RATIO));
+    shapes.push(new Shape(point.x + PADDING + SIZE / 8, point.y + PADDING, index * PHASE_RATIO));
     index++;
   }
   background(0);
@@ -129,43 +114,9 @@ function setup() {
 function draw() {
   background(0, 0, 0);
 
-  // rect(50, 50, width - 100, height - 100);
   for (const shape of shapes) {
     shape.draw();
   }
-  // stroke(c.r, c.g, c.b);
-  // push();
-  // // translate(xLfo.value, yLfo.value);
-  // translate(width / 2, height / 2);
-
-  // const value = stageFuncs[stage]();
-  // pop();
-
-  // for (const s of snapshots) {
-  //   push();
-  //   translate(s.x, s.y);
-  //   if (s.stage === 'square') {
-  //     drawSquare(s.value);
-  //   } else if (s.stage === 'circle') {
-  //     drawCircle(s.value);
-  //   } else if (s.stage === 'diamond') {
-  //     drawDiamond(s.value);
-  //   }
-  //   pop();
-  // }
-
-  // if (frameCount % SNAPSHOT_INTERVAL === 0) {
-  //   snapshots.push({
-  //     x: xLfo.value,
-  //     y: yLfo.value,
-  //     size: SIZE,
-  //     stage,
-  //     value,
-  //   });
-  //   if (snapshots.length > MAX_SNAPSHOTS) {
-  //     // snapshots.shift();
-  //   }
-  // }
 }
 
 let isLooping = true;
