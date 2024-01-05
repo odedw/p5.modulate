@@ -5,6 +5,15 @@ function polarToCartesian(r, a) {
   };
 }
 
+function cartesianToPolar(x, y) {
+  const r = sqrt(sq(x) + sq(y));
+  let a = atan(y / x);
+  if (x < 0) {
+    a += PI;
+  }
+  return { r, a };
+}
+
 function createColorLfo() {
   const phase = 0; //int(random(60));
   const hFrequency = 100 * 60;
