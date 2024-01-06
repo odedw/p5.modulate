@@ -1,12 +1,8 @@
 /// <reference types="p5/global" />
 
 // constants
-// const RADIUS = 100;
 
 // locals
-const points = [];
-let img;
-let lfo1, lfo2, lfo3;
 
 function setup() {
   createCanvas(700, 700);

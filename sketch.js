@@ -1,194 +1,183 @@
 /// <reference types="p5/global" />
 
 // constants
-const NUM_STARS = 30000;
-const NUM_BUILDINGS = 8;
-const BUILDING_LIGHT_COLOR = '#fff663';
-const STAR_COLOR = '#ffffff';
+const NUM_TARGETS = 10;
+const NUM_BLASTS = 10;
+const NUM_PARTICLES_IN_BLAST = 10;
+const TRAVEL_TIME = 80;
+const PARTICLE_SIZE = 10;
 
 // locals
-const particles = [];
-const buildings = [];
-const comets = [];
-let framesTillNextComet = 180;
-let starCenter;
-
+let particles = [];
+let timerTillTheNextRound;
+let particleSize;
 class Particle {
-  constructor(x, y, size, c, freq) {
+  trail = [];
+
+  constructor(x, y, vx, vy, c) {
     this.x = x;
     this.y = y;
-    this.size = size;
-    this.c = c;
-    if (freq) {
-      const phase = int(random(freq));
-      this.lfo = createLfo(LfoWaveform.Square, Timing.frames(freq, phase), 0, 1);
+    this.vx = vx;
+    this.vy = vy;
+    this.c = c || color(random(0, 255), random(0, 255), random(0, 255));
+  }
+
+  update() {
+    this.prev = { x: this.x, y: this.y };
+
+    this.x += this.vx;
+    this.y += this.vy;
+
+    if (this.x >= 0 && this.x <= width && this.y >= 0 && this.y <= height) {
+      this.trail.push({ x: this.x, y: this.y });
     }
   }
 
-  draw(center = { x: 0, y: 0 }) {
-    if (!!this.lfo && this.lfo.value == 0) {
-      return;
-    }
-    fill(red(this.c), green(this.c), blue(this.c), alpha(this.c)), // * this.lfo.value);
-      push();
-    translate(this.x - center.x, this.y - center.y);
-    square(0, 0, this.size);
-    pop();
-  }
+  collision(p) {
+    let normalX = p.x - this.x;
+    let normalY = p.y - this.y;
+    let magnitude = sqrt(normalX * normalX + normalY * normalY);
+    normalX /= magnitude;
+    normalY /= magnitude;
 
-  isOnScreen(rotation) {
-    const { r, a } = cartesianToPolar(this.x - starCenter.x, this.y - starCenter.y);
-    const { x, y } = polarToCartesian(r, a + rotation);
-    const x2 = x + starCenter.x;
-    const y2 = y + starCenter.y;
+    // Tangential vector is perpendicular to the normal
+    let tangentX = -normalY;
+    let tangentY = normalX;
 
-    return x2 >= 0 && x2 <= width && y2 >= 0 && y2 <= height;
-  }
-}
+    // Decompose velocities into normal and tangential components
+    let dotProductTangent1 = this.vx * tangentX + this.vy * tangentY;
+    let dotProductNormal1 = this.vx * normalX + this.vy * normalY;
+    let dotProductTangent2 = p.vx * tangentX + p.vy * tangentY;
+    let dotProductNormal2 = p.vx * normalX + p.vy * normalY;
 
-class Building {
-  constructor(x, w, h) {
-    this.x = x;
-    this.y = height - h;
-    this.w = w;
-    this.h = h;
-    const xGap = random(2, 10);
-    const yGap = random(2, 10);
-    this.points = generateGrid(int(w / xGap), int(h / yGap), w, h);
-    const c = color(
-      red(BUILDING_LIGHT_COLOR),
-      green(BUILDING_LIGHT_COLOR),
-      blue(BUILDING_LIGHT_COLOR),
-      random(100, 160)
-    );
-    const lightProbability = random(0.5, 0.8);
-    this.lights = this.points
-      .map((point) =>
-        Math.random() < lightProbability ? new Particle(this.x + point.x, this.y + point.y, random(1, 3), c) : null
-      )
-      .filter((p) => !!p);
+    // Swap normal components for elastic collision
+    this.vx = tangentX * dotProductTangent1 + normalX * dotProductNormal2;
+    this.vy = tangentY * dotProductTangent1 + normalY * dotProductNormal2;
+    p.vx = tangentX * dotProductTangent2 + normalX * dotProductNormal1;
+    p.vy = tangentY * dotProductTangent2 + normalY * dotProductNormal1;
   }
 
   draw() {
-    fill(0);
-    rect(this.x, height - this.h, this.w, this.h);
-    for (let i = 0; i < this.lights.length; i++) {
-      const l = this.lights[i];
-      l.draw();
-    }
+    strokeWeight(particleSize);
+    stroke(this.c);
+    line(this.prev.x, this.prev.y, this.x, this.y);
   }
 }
 
-class Comet {
-  streak = [];
-  constructor(x, y, a, s) {
-    this.x = x;
-    this.y = y;
-    this.s = s;
-    this.a = a;
-    this.alpha = 255;
-    this.alphaDegradation = 10;
-    this.sizeDegradation = 0.1;
+function computeTrajectories() {
+  randomPalette();
+  timerTillTheNextRound = null;
+  particles = [];
+  let trajectoryOrigins = [];
+  let targetCoords = [];
+  particleSize = random(PARTICLE_SIZE / 3, PARTICLE_SIZE);
+  const numTargets = int(random(2, NUM_TARGETS));
+  for (let i = 0; i < numTargets; i++) {
+    targetCoords.push({
+      x: random(0.2 * width, 0.8 * width),
+      y: random(0.2 * height, 0.8 * height),
+    });
   }
 
-  draw() {
-    if (this.s <= 0 || this.alpha <= 0) {
-      return;
+  const numBlasts = int(random(2, NUM_BLASTS));
+  for (const targetCoord of targetCoords) {
+    // generate random trajectories
+    let edge = int(random(0, 4));
+    for (let i = 0; i < numBlasts; i++) {
+      if (edge === 0) {
+        trajectoryOrigins.push({ x: random(0, width), y: 0 });
+      } else if (edge === 1) {
+        trajectoryOrigins.push({ x: width, y: random(0, height) });
+      } else if (edge === 2) {
+        trajectoryOrigins.push({ x: random(0, width), y: height });
+      } else if (edge === 3) {
+        trajectoryOrigins.push({ x: 0, y: random(0, height) });
+      }
+
+      edge = (edge + 1) % 4;
     }
+    let count = 0;
+    for (const o of trajectoryOrigins) {
+      let d = dist(o.x, o.y, targetCoord.x, targetCoord.y);
 
-    stroke(255, 255, 255, this.alpha);
-    this.x += cos(this.a) * 100;
-    this.y += sin(this.a) * 100;
+      // find starting point
+      let dx = targetCoord.x - o.x;
+      let dy = targetCoord.y - o.y;
 
-    this.streak.push({ x: this.x, y: this.y });
-    if (this.streak.length > 10) {
-      this.streak.shift();
+      let magnitude = sqrt(dx * dx + dy * dy);
+      let dirX = dx / magnitude;
+      let dirY = dy / magnitude;
+
+      const vx = dirX * (d / TRAVEL_TIME);
+      const vy = dirY * (d / TRAVEL_TIME);
+
+      // generate particles
+      let added = 0;
+      const c = PALETTE[count++ % PALETTE.length];
+
+      const numParticles = int(random(2, NUM_PARTICLES_IN_BLAST));
+      while (added < numParticles) {
+        // for (let i = 0; i < NUM_PARTICLES_IN_BLAST; i++) {
+        const x = o.x + random(-particleSize * 5, particleSize * 3);
+        const y = o.y + random(-particleSize * 5, particleSize * 5);
+        if (x >= 0 && x <= width && y >= 0 && y <= height) {
+          continue;
+        }
+        particles.push(new Particle(x, y, vx, vy, c));
+        added++;
+      }
     }
-
-    for (let i = this.streak.length - 1; i >= 1; i--) {
-      stroke(255, 255, 255, this.alpha * (i / this.streak.length));
-      line(this.streak[i].x, this.streak[i].y, this.streak[i - 1].x, this.streak[i - 1].y);
-    }
-
-    this.s -= this.sizeDegradation;
-    this.alpha -= this.alphaDegradation;
   }
+
+  background(0);
 }
 
 function setup() {
   createCanvas(700, 700);
-  noStroke();
-  // rectMode(CENTER);
-  //   background(0);
-  starCenter = { x: width * 0.5, y: height * 0.9 };
-
-  strokeWeight(0.5);
-  const maxR = sqrt(width ** 2 + height ** 2) / 2;
-  while (particles.length < NUM_STARS) {
-    // for (let i = 0; i < NUM_STARS; i++) {
-    const x = random(-width * 2, width * 2);
-    const y = random(-height * 2, height * 2);
-    const { r } = cartesianToPolar(x - starCenter.x, y - starCenter.y);
-    if (r > maxR * 2) {
-      continue;
-    }
-    const size = random(0.05, 1.5);
-    const c = color(255, 255, 255, random(255));
-    particles.push(new Particle(x, y, size, c, int(random(3000, 6000))));
-  }
-
-  // particles.push(new Particle(width / 2 + 10, -10, 3, 'white', 60));
-
-  let highestBuilding = null;
-  rerun = false;
-  while (buildings.length < NUM_BUILDINGS) {
-    const x = random(width);
-    const w = random(width * 0.05, width * 0.2);
-    const h = random(height * 0.1, height * 0.5);
-    const c = color(255, 255, 255, random(255));
-    const b = new Building(x, w, h, c);
-    const overlappingBuildings = buildings.filter((b) => b.x <= x && b.x + b.w >= x);
-    if (overlappingBuildings.length <= 2) {
-      buildings.push(b);
-      highestBuilding = highestBuilding ? (b.h > highestBuilding.h ? b : highestBuilding) : b;
-    }
-  }
-
-  buildings.push(new Particle(highestBuilding.x + highestBuilding.w / 2, highestBuilding.y - 5, 3, 'red', 60));
+  rectMode(CENTER);
+  computeTrajectories();
 }
 
 function draw() {
-  background(0);
-
-  for (const comet of comets) {
-    comet.draw();
+  for (const p of particles) {
+    p.update();
+    p.draw();
   }
 
-  noStroke();
-
-  push();
-  translate(starCenter.x, starCenter.y);
-  const angle = frameCount / 5000;
-  rotate(angle);
-  for (const particle of particles) {
-    if (particle.isOnScreen(angle)) {
-      particle.draw(starCenter);
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const p1 = particles[i];
+      const p2 = particles[j];
+      const d = dist(p1.x, p1.y, p2.x, p2.y);
+      if (d < particleSize) {
+        p1.collision(p2);
+      }
     }
   }
 
-  pop();
-
-  for (const b of buildings) {
-    b.draw();
+  const outOfBoundsParticles = particles.filter((p) => {
+    return p.x < 0 || p.x > width || p.y < 0 || p.y > height;
+  });
+  if (!timerTillTheNextRound && outOfBoundsParticles.length > particles.length * 0.9) {
+    timerTillTheNextRound = Timing.frames(240, 0, false);
   }
 
-  if (--framesTillNextComet == 0) {
-    const x = random(0.1 * width, 0.9 * width);
-    comets.push(
-      new Comet(x, random(0.3 * height), x < width / 2 ? random(0.15 * PI, 0.25 * PI) : random(0.75 * PI, 0.85 * PI), 2)
-    );
-    framesTillNextComet = random(120, 600);
+  if (timerTillTheNextRound?.finished) {
+    computeTrajectories();
   }
+}
+
+let isLooping = true;
+function mouseClicked() {
+  computeTrajectories();
+
+  // if (isLooping) {
+  //   noLoop();
+  // } else {
+  //   loop();
+  // }
+
+  // isLooping = !isLooping;
 }
 
 P5Capture.setDefaultOptions({
