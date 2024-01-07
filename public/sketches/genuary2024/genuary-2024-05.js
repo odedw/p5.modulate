@@ -115,16 +115,14 @@ function setup() {
 }
 
 function draw() {
-  if (frameCount === 1) {
-    if (frameCount === 1) {
-      const capture = P5Capture.getInstance();
-      capture.start({
-        format: 'png',
-        framerate: 30,
-        quality: 1,
-      });
-    }
-  }
+  // if (frameCount === 1) {
+  //   const capture = P5Capture.getInstance();
+  //   capture.start({
+  //     format: 'png',
+  //     framerate: 30,
+  //     quality: 1,
+  //   });
+  // }
   background(238, 243, 248);
 
   for (const shape of shapes) {

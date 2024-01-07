@@ -139,6 +139,9 @@ function setup() {
 }
 
 function draw() {
+  // if (frameCount === 1) {
+  //   record();
+  // }
   for (const p of particles) {
     p.update();
     p.draw();
@@ -164,21 +167,32 @@ function draw() {
 
   if (timerTillTheNextRound?.finished) {
     computeTrajectories();
+    // const capture = P5Capture.getInstance();
+    // capture.stop();
+    // record();
+    // console.log('===========================');
+    // console.log(frameCount, 60 * 60);
+    // console.log('===========================');
   }
 }
+// function imageFilename(index) {
+//   return frameCount.toString().padStart(7, '0');
+// }
+// function record() {
+//   const capture = P5Capture.getInstance();
+//   capture.start({
+//     format: 'png',
+//     framerate: 60,
+//     quality: 1,
+//     imageFilename,
+//   });
+// }
 
-let isLooping = true;
-function mouseClicked() {
-  computeTrajectories();
+// let isLooping = true;
+// function mouseClicked() {
+//   computeTrajectories();
 
-  // if (isLooping) {
-  //   noLoop();
-  // } else {
-  //   loop();
-  // }
-
-  // isLooping = !isLooping;
-}
+// }
 
 P5Capture.setDefaultOptions({
   disableUi: true,
