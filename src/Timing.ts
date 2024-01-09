@@ -5,6 +5,16 @@ export enum TimingType {
   Manual,
 }
 
+export enum Easing {
+  Linear,
+  EaseInQuad,
+  EaseOutQuad,
+  EaseInOutQuad,
+  EaseInCubic,
+  EaseOutCubic,
+  EaseInOutCubic,
+}
+
 export class Timing {
   static Registry: Timing[] = [];
   private elapsedTimeMs: number = 0;
@@ -17,7 +27,8 @@ export class Timing {
     public readonly value: number = 0,
     public readonly phase: number = 0,
     public loop: boolean = true,
-    public autoTrigger: boolean = true
+    public autoTrigger: boolean = true,
+    public easing: Easing = Easing.Linear
   ) {
     Timing.Registry.push(this);
     this.reset();
@@ -80,6 +91,30 @@ export class Timing {
     }
   }
 
+  easeInQuad(x: number) {
+    return x * x;
+  }
+
+  easeOutQuad(x: number) {
+    return 1 - (1 - x) * (1 - x);
+  }
+
+  easeInOutQuad(x: number) {
+    return x < 0.5 ? 2 * x * x : 1 - pow(-2 * x + 2, 2) / 2;
+  }
+
+  easeInCubic(x: number) {
+    return x * x * x;
+  }
+
+  easeOutCubic(x: number) {
+    return 1 - pow(1 - x, 3);
+  }
+
+  easeInOutCubic(x: number) {
+    return x < 0.5 ? 4 * x * x * x : 1 - pow(-2 * x + 2, 3) / 2;
+  }
+
   /**
    * Returns the elapsed percentage of the timing value.
    */
@@ -98,6 +133,27 @@ export class Timing {
       result = this.elapsedTimeMs / (this.value * 1000);
     } else if (this.timingType === TimingType.Manual) {
       result = this.elapsedSteps / this.value;
+    }
+
+    switch (this.easing) {
+      case Easing.EaseInQuad:
+        result = this.easeInQuad(result);
+        break;
+      case Easing.EaseOutQuad:
+        result = this.easeOutQuad(result);
+        break;
+      case Easing.EaseInOutQuad:
+        result = this.easeInOutQuad(result);
+        break;
+      case Easing.EaseInCubic:
+        result = this.easeInCubic(result);
+        break;
+      case Easing.EaseOutCubic:
+        result = this.easeOutCubic(result);
+        break;
+      case Easing.EaseInOutCubic:
+        result = this.easeInOutCubic(result);
+        break;
     }
 
     return result;
@@ -124,24 +180,73 @@ export class Timing {
   }
 }
 
+const defaultOpts = {
+  phase: 0,
+  loop: true,
+  autoTrigger: true,
+  easing: Easing.Linear,
+};
 export const TimingFactory = {
-  frames: function (frames: number, phase: number = 0, loop: boolean = true): Timing {
-    return new Timing(TimingType.Frames, frames, phase, loop);
+  frames: function (
+    frames: number,
+    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: Easing }
+  ): Timing {
+    return new Timing(
+      TimingType.Frames,
+      frames,
+      opts.phase ?? defaultOpts.phase,
+      opts.loop ?? defaultOpts.loop,
+      opts.autoTrigger ?? defaultOpts.autoTrigger,
+      opts.easing ?? defaultOpts.easing
+    );
   },
 
-  milliseconds: function (ms: number, phase: number = 0): Timing {
-    return new Timing(TimingType.Milliseconds, ms, phase);
+  milliseconds: function (
+    ms: number,
+    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: Easing }
+  ): Timing {
+    return new Timing(
+      TimingType.Milliseconds,
+      ms,
+      opts.phase ?? defaultOpts.phase,
+      opts.loop ?? defaultOpts.loop,
+      opts.autoTrigger ?? defaultOpts.autoTrigger,
+      opts.easing ?? defaultOpts.easing
+    );
   },
 
-  seconds: function (s: number, phase: number = 0): Timing {
-    return new Timing(TimingType.Seconds, s, phase);
+  seconds: function (
+    s: number,
+    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: Easing }
+  ): Timing {
+    return new Timing(
+      TimingType.Seconds,
+      s,
+      opts.phase ?? defaultOpts.phase,
+      opts.loop ?? defaultOpts.loop,
+      opts.autoTrigger ?? defaultOpts.autoTrigger,
+      opts.easing ?? defaultOpts.easing
+    );
   },
 
-  manual: function (s: number = 0, phase: number = 0, loop: boolean = true, autoTrigger: boolean = true): Timing {
-    return new Timing(TimingType.Manual, s, phase, loop, autoTrigger);
+  manual: function (
+    s: number = 0,
+    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: Easing }
+  ): Timing {
+    return new Timing(
+      TimingType.Manual,
+      s,
+      opts.phase ?? defaultOpts.phase,
+      opts.loop ?? defaultOpts.loop,
+      opts.autoTrigger ?? defaultOpts.autoTrigger,
+      opts.easing ?? defaultOpts.easing
+    );
   },
 
   zero: function () {
-    return TimingFactory.manual(0, 0, false, false);
+    return TimingFactory.manual(0, {
+      loop: false,
+      autoTrigger: false,
+    });
   },
 };
