@@ -1,217 +1,121 @@
 /// <reference types="p5/global" />
 
 // constants
-const SIZE = 3;
-const WIDTH = Math.sqrt(3) * SIZE;
-const HEIGHT = SIZE * 2;
-const FRAME_RATE = 1;
-const DEBUG = false;
+const palette = ['#e5d346', '#272624', '#4d6c79', '#aa3827'];
+const DOWN = 0;
+const LEFT = 1;
+const UP = 2;
+const RIGHT = 3;
 
 // locals
-const cells = [];
-let RULES = [];
-let palette = [];
-let rows, cols;
-let ruleIndex = 0;
-class Cell {
-  constructor(row, col) {
-    this.row = row;
-    this.col = col;
-    this.state = false;
-    this.nextState = null;
-    this.neighbors = [];
-    const offset = this.row % 2 ? WIDTH / 2 : 0;
-    this.x = this.col * WIDTH + offset;
-    this.y = (this.row * HEIGHT * 3) / 4;
-  }
-
-  update() {
-    this.highlighted = false;
-    this.numLivingNeighbors = this.neighbors.filter((c) => c.state).length;
-    const rules = this.state ? RULES[0] : RULES[1];
-    this.nextState = rules.includes(this.numLivingNeighbors);
-  }
-
-  commit() {
-    this.state = this.nextState;
+let t;
+let segments = [];
+class Segment {
+  constructor(x, y, d, c, w, h) {
+    this.x = x;
+    this.y = y;
+    this.d = d;
+    this.w = w;
+    this.h = h;
+    this.c = c;
   }
 
   draw() {
-    if (DEBUG) stroke(255);
-    fill(this.state ? palette[this.numLivingNeighbors - 1] : 0);
-    push();
-    translate(this.x, this.y);
+    fill(this.c);
+    let x, y;
+    if (this.d === LEFT) {
+      x = lerp(width, 0, t.elapsed);
+      y = this.y;
+    } else if (this.d === RIGHT) {
+      x = lerp(-width, 0, t.elapsed);
+      y = this.y;
+    } else if (this.d === UP) {
+      x = this.x;
+      y = lerp(height, 0, t.elapsed);
+    } else if (this.d === DOWN) {
+      x = this.x;
+      y = lerp(-height, 0, t.elapsed);
+    }
 
-    beginShape();
-    for (let i = 0; i < 6; i++) {
-      const angle = (Math.PI / 3) * i + Math.PI / 6;
-      const x2 = SIZE * Math.cos(angle);
-      const y2 = SIZE * Math.sin(angle);
-      vertex(x2, y2);
-    }
-    endShape(CLOSE);
-    if (DEBUG) {
-      textAlign(CENTER, CENTER);
-      fill(this.highlighted || this.state ? 0 : 255);
-      stroke(this.highlighted || this.state ? 0 : 255);
-      text(`${this.col},${this.row}`, 0, 0);
-    }
-    pop();
+    rect(x, y, this.w, this.h);
   }
 }
-
-function reset() {
-  let row = 0,
-    col = 0;
-
-  if (!cells.length) {
-    // create cells
-    for (let y = 0; y < height + HEIGHT; y += 1.5 * SIZE) {
-      col = 0;
-      for (let x = 0; x < width + WIDTH; x += WIDTH) {
-        cells.push(new Cell(row, col));
-        col++;
-      }
-      row++;
-    }
-    rows = row;
-    cols = col;
-
-    // set neighbors
-    for (const c of cells) {
-      const { row, col } = c;
-      const offset = row % 2;
-      const neighbors = [
-        [col - 1, row],
-        [col + 1, row],
-        [col - 1 + offset, row + 1],
-        [col + offset, row + 1],
-        [col - 1 + offset, row - 1],
-        [col + offset, row - 1],
-      ];
-      for (const [col, row] of neighbors) {
-        const neighbor = cells.find((c) => c.row === row && c.col === col);
-        if (neighbor) {
-          c.neighbors.push(neighbor);
-        }
-      }
-    }
-  } else {
-    // reset cells
-    for (const c of cells) {
-      c.state = false;
-      c.nextState = null;
-    }
-  }
-  // set ruleset and colors
-  RULES = [RULESETS[ruleIndex][0], RULESETS[ruleIndex][1]];
-  console.log('rule index', ruleIndex);
-  palette = [1, 2, 3, 4, 5, 6].map(() => color(random(255), random(255), random(255)));
-
-  // initialize center
-  const centerCell = cells.find((c) => c.row === int(rows / 2) && c.col === int(cols / 2));
-  centerCell.state = true;
-  centerCell.neighbors.forEach((c) => (c.state = true));
-  centerCell.neighbors.flatMap((c) => c.neighbors).forEach((c) => (c.state = true));
-}
-
 function setup() {
-  createCanvas(800, 800);
-  rectMode(CENTER);
+  createCanvas(360 * 1.5, 600 * 1.5);
   noStroke();
-  reset();
-  background(0);
+  // rectMode(CENTER);
+  t = Timing.frames(60, 0, false);
+
+  let horizontalSegmentHeight = height / 54;
+  let verticalSegmentWidth = width / 12;
+
+  // back
+  segments.push(new Segment(0, 1 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 3 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 5 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 6 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 7 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 8 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 9 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 10 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 11 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 25 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 27 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 29 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 31 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 33 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 35 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 37 * horizontalSegmentHeight, LEFT, palette[3], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 39 * horizontalSegmentHeight, LEFT, palette[3], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 41 * horizontalSegmentHeight, LEFT, palette[3], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 48 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 50 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 52 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+
+  // middle
+  segments.push(new Segment(0 * verticalSegmentWidth, 0, UP, palette[0], verticalSegmentWidth, height));
+  segments.push(new Segment(2 * verticalSegmentWidth, 0, UP, palette[1], verticalSegmentWidth, height));
+  segments.push(new Segment(4 * verticalSegmentWidth, 0, UP, palette[2], verticalSegmentWidth, height));
+  segments.push(new Segment(6 * verticalSegmentWidth, 0, UP, palette[3], verticalSegmentWidth, height));
+  segments.push(new Segment(8 * verticalSegmentWidth, 0, UP, palette[3], verticalSegmentWidth, height));
+  segments.push(new Segment(10 * verticalSegmentWidth, 0, UP, palette[0], verticalSegmentWidth, height));
+
+  // front
+  segments.push(new Segment(0, 12 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 14 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 16 * horizontalSegmentHeight, LEFT, palette[1], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 18 * horizontalSegmentHeight, LEFT, palette[3], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 20 * horizontalSegmentHeight, LEFT, palette[3], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 22 * horizontalSegmentHeight, LEFT, palette[3], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 24 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 26 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 28 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 30 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 32 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 34 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 42 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 44 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+  segments.push(new Segment(0, 46 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
 }
 
 function draw() {
-  if (frameCount % FRAME_RATE === 0) {
-    background(0);
-    for (const c of cells) {
-      c.update();
-    }
-    for (const c of cells) {
-      c.commit();
-      c.draw();
-    }
+  background(255);
+  for (const segment of segments) {
+    segment.draw();
   }
 }
 
 let isLooping = true;
 function mouseClicked() {
-  // find the cell that was clicked
-  // if (isLooping) {
-  //   noLoop();
-  // } else {
-  //   loop();
-  // }
-  // isLooping = !isLooping;
-  const cell = cells.find((c) => {
-    const d = dist(mouseX, mouseY, c.x, c.y);
-    return d < SIZE;
-  });
-  if (cell) {
-    // cell.highlighted = true;
-    // cell.neighbors.forEach((c) => (c.highlighted = true));
-    cell.state = !cell.state;
+  if (isLooping) {
+    noLoop();
+  } else {
+    loop();
   }
-}
 
-function keyPressed() {
-  if (key === ' ') {
-    ruleIndex = (ruleIndex + 1) % RULESETS.length;
-    reset();
-  } else if (key === '1') {
-    const centerCell = cells.find((c) => c.row === int(rows / 2) && c.col === int(cols / 2));
-    centerCell.state = true;
-
-    centerCell.neighbors.forEach((c) => {
-      c.update();
-    });
-    centerCell.neighbors.forEach((c) => {
-      c.commit();
-    });
-  } else if (key === '2') {
-    const centerCell = cells.find((c) => c.row === int(rows / 2) && c.col === int(cols / 2));
-    centerCell.state = true;
-
-    centerCell.neighbors.forEach((c) => (c.state = true));
-
-    new Set([centerCell, ...centerCell.neighbors, ...centerCell.neighbors.flatMap((c) => c.neighbors)]).forEach((c) => {
-      c.update();
-    });
-
-    new Set([centerCell, ...centerCell.neighbors, ...centerCell.neighbors.flatMap((c) => c.neighbors)]).forEach((c) => {
-      c.commit();
-    });
-  }
+  isLooping = !isLooping;
 }
 
 P5Capture.setDefaultOptions({
   disableUi: true,
 });
-
-const RULESETS = [
-  [
-    [4, 3, 2, 6, 5],
-    [4, 2],
-  ],
-  [
-    [3, 2, 1],
-    [4, 3, 2],
-  ],
-  [[4, 5, 1], [2]],
-  [
-    [6, 5, 4, 3, 2],
-    [1, 5, 6],
-  ],
-  [[4, 3, 2], [1]],
-  [
-    [5, 4, 3],
-    [1, 2, 3],
-  ],
-  [[1, 5, 4], [1]],
-  [
-    [1, 5, 2, 4, 3],
-    [1, 2, 3, 6],
-  ],
-];
