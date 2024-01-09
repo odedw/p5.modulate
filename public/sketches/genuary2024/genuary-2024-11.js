@@ -8,7 +8,7 @@ const UP = 2;
 const RIGHT = 3;
 const EASING = 0.05;
 // locals
-let t1, t2, t3;
+let t1, t2, t3, t4, bg;
 let segments = [];
 class Segment {
   constructor(x, y, d, c, w, h) {
@@ -18,10 +18,23 @@ class Segment {
     this.w = w;
     this.h = h;
     this.c = c;
+    this.pg = createGraphics(w, h);
+    this.pg.noFill();
+    const r = red(c);
+    const g = green(c);
+    const b = blue(c);
+    // this.pg.background(c);
+    for (let x2 = 0; x2 < this.pg.width; x2++) {
+      for (let y2 = 0; y2 < this.pg.height; y2++) {
+        const delta = random(-20, 20);
+        this.pg.stroke(r + delta, g + delta, b + delta);
+        this.pg.ellipse(x2, y2, 1);
+      }
+    }
   }
 
   draw() {
-    fill(this.c);
+    // fill(this.c);
     let x, y;
     if (this.d === LEFT) {
       x = lerp(width, 0, t1.elapsed) + lerp(0, -width, t3.elapsed);
@@ -37,7 +50,7 @@ class Segment {
       y = lerp(-height, 0, t1.elapsed) + lerp(0, height, t3.elapsed);
     }
 
-    rect(x, y, this.w, this.h);
+    image(this.pg, x, y, this.w, this.h);
   }
 }
 
@@ -48,6 +61,7 @@ function setup() {
   t1 = Timing.frames(120, { easing: Easing.EaseOutCubic, loop: false });
   t2 = Timing.frames(30, { autoTrigger: false, loop: false });
   t3 = Timing.frames(120, { easing: Easing.EaseInCubic, loop: false, autoTrigger: false });
+  t4 = Timing.frames(30, { autoTrigger: false, loop: false });
 
   let horizontalSegmentHeight = height / 54;
   let verticalSegmentWidth = width / 12;
@@ -99,10 +113,18 @@ function setup() {
   segments.push(new Segment(0, 42 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
   segments.push(new Segment(0, 44 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
   segments.push(new Segment(0, 46 * horizontalSegmentHeight, LEFT, palette[2], width, horizontalSegmentHeight));
+
+  bg = createGraphics(width, height);
+  for (let x = 0; x < bg.width; x++) {
+    for (let y = 0; y < bg.height; y++) {
+      bg.stroke(random(230, 255));
+      bg.ellipse(x, y, 1);
+    }
+  }
 }
 
 function draw() {
-  background(255);
+  image(bg, 0, 0, width, height);
   for (const segment of segments) {
     segment.draw();
   }
@@ -111,12 +133,23 @@ function draw() {
     t2.activate();
   }
 
-  if (t2.finished && !t3.isActive) {
+  if (t2.finished && !t3.isActive && !t3.finished) {
     t3.activate();
+  }
+
+  if (t3.finished && !t4.isActive && !t4.finished) {
+    t4.activate();
+  }
+
+  if (t4.finished) {
+    t1.reset();
+    t2.reset();
+    t3.reset();
+    t4.reset();
   }
 }
 
-let isLooping = true;
+let isLooping = false;
 function mouseClicked() {
   if (isLooping) {
     noLoop();
@@ -129,4 +162,6 @@ function mouseClicked() {
 
 P5Capture.setDefaultOptions({
   disableUi: true,
+  // format: 'mp4',
+  // frameRate: 60,
 });
