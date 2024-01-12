@@ -194,10 +194,10 @@ export const TimingFactory = {
     return new Timing(
       TimingType.Frames,
       frames,
-      opts.phase ?? defaultOpts.phase,
-      opts.loop ?? defaultOpts.loop,
-      opts.autoTrigger ?? defaultOpts.autoTrigger,
-      opts.easing ?? defaultOpts.easing
+      opts?.phase ?? defaultOpts.phase,
+      opts?.loop ?? defaultOpts.loop,
+      opts?.autoTrigger ?? defaultOpts.autoTrigger,
+      opts?.easing ?? defaultOpts.easing
     );
   },
 
@@ -208,10 +208,10 @@ export const TimingFactory = {
     return new Timing(
       TimingType.Milliseconds,
       ms,
-      opts.phase ?? defaultOpts.phase,
-      opts.loop ?? defaultOpts.loop,
-      opts.autoTrigger ?? defaultOpts.autoTrigger,
-      opts.easing ?? defaultOpts.easing
+      opts?.phase ?? defaultOpts.phase,
+      opts?.loop ?? defaultOpts.loop,
+      opts?.autoTrigger ?? defaultOpts.autoTrigger,
+      opts?.easing ?? defaultOpts.easing
     );
   },
 
@@ -222,10 +222,10 @@ export const TimingFactory = {
     return new Timing(
       TimingType.Seconds,
       s,
-      opts.phase ?? defaultOpts.phase,
-      opts.loop ?? defaultOpts.loop,
-      opts.autoTrigger ?? defaultOpts.autoTrigger,
-      opts.easing ?? defaultOpts.easing
+      opts?.phase ?? defaultOpts.phase,
+      opts?.loop ?? defaultOpts.loop,
+      opts?.autoTrigger ?? defaultOpts.autoTrigger,
+      opts?.easing ?? defaultOpts.easing
     );
   },
 
@@ -236,10 +236,10 @@ export const TimingFactory = {
     return new Timing(
       TimingType.Manual,
       s,
-      opts.phase ?? defaultOpts.phase,
-      opts.loop ?? defaultOpts.loop,
-      opts.autoTrigger ?? defaultOpts.autoTrigger,
-      opts.easing ?? defaultOpts.easing
+      opts?.phase ?? defaultOpts.phase,
+      opts?.loop ?? defaultOpts.loop,
+      opts?.autoTrigger ?? defaultOpts.autoTrigger,
+      opts?.easing ?? defaultOpts.easing
     );
   },
 

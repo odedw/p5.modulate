@@ -8,6 +8,7 @@ function setup() {
   createCanvas(700, 700);
   stroke(255);
   rectMode(CENTER);
+  // pixelDensity(1);
   //   background(0);
 }
 
@@ -28,4 +29,7 @@ function mouseClicked() {
 
 P5Capture.setDefaultOptions({
   disableUi: true,
+  // format: 'mp4',
+  // quality: 1,
+  // framerate: 60,
 });
