@@ -93,9 +93,8 @@ function draw() {
           ((i * SIZE - blobs[k].x) * (i * SIZE - blobs[k].x) + (j * SIZE - blobs[k].y) * (j * SIZE - blobs[k].y));
       }
       grid[i][j] = val;
-      noStroke();
       if (val > 1) {
-        fill(random(255), random(255), random(255));
+        fill(random(255));
 
         rect(i * SIZE, j * SIZE, SIZE);
       }

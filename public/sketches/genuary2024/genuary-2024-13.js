@@ -1,87 +1,94 @@
 /// <reference types="p5/global" />
 
 // constants
+const NUM_COLS = 5;
+const NUM_ROWS = 5;
 
 // locals
-let pg, lfo1, lfo2, img;
+const rects = [];
+let img, pg;
 
+let segment;
+function generateParameters() {
+  return {
+    a: random(0.03, 0.5) * (Math.random() < 0.5 ? -1 : 1),
+    b: random(0.05, 0.5) * (Math.random() < 0.5 ? -1 : 1),
+    c: random(0.03, 0.5) * (Math.random() < 0.5 ? -1 : 1),
+    d: random(0.05, 0.5) * (Math.random() < 0.5 ? -1 : 1),
+    m: random(1.5, 3),
+    chance: random(),
+  };
+}
 function preload() {
   img = loadImage('public/assets/ThePinkCloud_HenriEdmondCross.jpg');
 }
+
 function setup() {
   createCanvas(700, 700);
   stroke(255);
   rectMode(CENTER);
   pixelDensity(1);
-  //   background(0);
-  lfo1 = createLfo(LfoWaveform.Sine, Timing.frames(300), 100, 100);
+  // divide into rects
+  const w = width / NUM_COLS;
+  const h = height / NUM_ROWS;
+  for (let x = 0; x < width; x += w) {
+    for (let y = 0; y < height; y += h) {
+      const numParameters = int(random(1, 4));
+      const parameters = [];
+      for (let i = 0; i < numParameters; i++) {
+        parameters.push(generateParameters());
+      }
+      rects.push({ x, y, w, h, parameters });
+    }
+  }
+
   pg = createGraphics(width, height);
   pg.image(img, 0, 0, width, height);
 }
 
-function wobbly(r, a, t) {
-  const w0 = sin(0.3 * r + 0.04 * t + 2.0 + 1 * sin(0.4 * r + -0.03 * t + 0.0));
-  const w1 = sin(0.2 * a + 0.05 * t + 2.8 + 1 * sin(0.5 * a + -0.02 * t + 0.5));
-  return w0 + w1;
-  // const w0 = sin(0.3 * r + 0.4 * t + 2.0 + 1 * sin(0.4 * a + -0.03 * t + 0.0));
-  return w0;
+function wobbly(parameters, x, y) {
+  let sum = 0;
+  const { r, a } = cartesianToPolar(x - width / 2, y - height / 2);
+  for (const p of parameters) {
+    sum += sin(
+      p.a * (p.chance < 0.6 ? x : r) + p.b * frameCount + p.m * sin(p.c * (p.chance < 0.6 ? y : a) + p.d * frameCount)
+    );
+  }
+
+  const col = map(sum, -1, 1, -2, 2);
+  return col;
 }
-
 function draw() {
-  // background(0);
-  for (let x = 0; x < width; x++) {
-    for (let y = 0; y < height; y += 1) {}
-  }
+  image(img, 0, 0, width, height);
+
   loadPixels();
-  // iterate over pixels
-  for (let x = 0; x < width; x++) {
-    for (let y = 0; y < height; y += 1) {
-      // calculate index
-      const index = (x + y * width) * 4;
+  pg.loadPixels();
+  let rectIndex = 0;
+  for (const r of rects) {
+    rectIndex++;
 
-      // // calculate color
-      const v = wobbly(x, y, frameCount);
-      const c = map(v, -2, 2, 0, 255);
-      // // set color
-      pixels[index + 0] = c;
-      pixels[index + 1] = c;
-      pixels[index + 2] = c;
-      pixels[index + 3] = 255;
-    }
-  }
-
-  for (let a = 0; a < TWO_PI; a += TWO_PI / 500) {
-    for (let r = 0; r < width / 2; r++) {
-      // calculate index
-      let { x, y } = polarToCartesian(r, a);
-      x = int(x + width / 2);
-      y = int(y + height / 2);
-      const index = (x + y * width) * 4;
-
-      // // calculate color
-      const v = wobbly(r, a, frameCount);
-      const c = map(v, -2, 2, 0, 255);
-      // // set color
-      pixels[index + 0] = c;
-      pixels[index + 1] = c;
-      pixels[index + 2] = c;
-      pixels[index + 3] = 255;
+    const { x, y, w, h, parameters } = r;
+    for (let i = x; i < x + w; i++) {
+      for (let j = y; j < y + h; j += 1) {
+        // calculate index
+        const index = (i + j * width) * 4;
+        const mValue = int(wobbly(parameters, i, j));
+        const newIndex = index + mValue;
+        const col = map(mValue, -1, 1, 0.5, 1);
+        // // set color
+        pixels[index + 0] = pg.pixels[newIndex + 0] * col;
+        pixels[index + 1] = pg.pixels[newIndex + 1] * col;
+        pixels[index + 2] = pg.pixels[newIndex + 2] * col;
+        pixels[index + 3] = 255;
+      }
     }
   }
   updatePixels();
 }
 
-let isLooping = true;
-function mouseClicked() {
-  if (isLooping) {
-    noLoop();
-  } else {
-    loop();
-  }
-
-  isLooping = !isLooping;
-}
-
 P5Capture.setDefaultOptions({
   disableUi: true,
+  // format: 'png',
+  // quality: 1,
+  // framerate: 60,
 });
