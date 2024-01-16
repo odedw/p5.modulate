@@ -29,7 +29,7 @@ function mouseClicked() {
 
 P5Capture.setDefaultOptions({
   disableUi: true,
-  // format: 'mp4',
-  // quality: 1,
-  // framerate: 60,
+  format: 'mp4',
+  quality: 1,
+  framerate: 60,
 });

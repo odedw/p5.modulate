@@ -229,6 +229,11 @@ function randomPalette() {
   PALETTE = p.colors;
   console.log('PALETTE', p.name);
 }
+function setPalette(name) {
+  paletteName = name;
+  PALETTE = palettes.find((p) => p.name === name).colors;
+  console.log('PALETTE', paletteName);
+}
 if (paletteName) {
   PALETTE = palettes.find((p) => p.name == paletteName).colors;
 } else {
