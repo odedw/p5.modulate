@@ -221,6 +221,14 @@ const palettes = [
       '#f9d531',
     ],
   },
+  {
+    name: 'Bauhaus1',
+    colors: ['#EDEDED', '#154084', '#9D2719', '#D7B418', '#222222'],
+  },
+  {
+    name: 'Bauhaus1',
+    colors: ['#0477BF', '#F2B705', '#F2E2C4', '#261D11', '#A6290D'],
+  },
 ];
 
 let PALETTE;
