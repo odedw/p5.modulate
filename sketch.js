@@ -3,6 +3,8 @@
 // constants
 const DISTANCE = 100;
 const PARTICLE_COUNT = 50;
+const PLANE_MULTIPLIER_A = 1;
+const PLANE_MULTIPLIER_B = 3;
 // locals
 let particles = [];
 let t1, t2, t3;
@@ -18,18 +20,20 @@ class Particle {
   constructor(x, y) {
     this.x = x;
     this.y = y;
+    this.origin = createVector(x, y);
     this.b = randomBezier(x, y);
     this.c = random(PALETTE);
     this.lastPoint = createVector(x, y);
     this.type = Type.Point;
+    this.r = random(1);
   }
 
   switchToLine() {
     this.type = Type.Line;
-
+    const multiplier = random(PLANE_MULTIPLIER_A, PLANE_MULTIPLIER_B);
     this.destination = createVector(
-      this.x + random(-DISTANCE * 5, DISTANCE * 5),
-      this.y + random(-DISTANCE * 5, DISTANCE * 5)
+      this.x + random(-DISTANCE * multiplier, DISTANCE * multiplier),
+      this.y + random(-DISTANCE * multiplier, DISTANCE * multiplier)
     );
   }
 
@@ -38,20 +42,30 @@ class Particle {
     strokeWeight(5);
     stroke(this.c);
     if (this.type === Type.Point) {
-      let nextX = bezierPoint(this.b[0].x, this.b[1].x, this.b[2].x, this.b[3].x, t1.elapsed);
-      let nextY = bezierPoint(this.b[0].y, this.b[1].y, this.b[2].y, this.b[3].y, t1.elapsed);
+      let nextX = this.x + bezierPoint(this.b[0].x, this.b[1].x, this.b[2].x, this.b[3].x, t1.elapsed);
+      let nextY = this.y + bezierPoint(this.b[0].y, this.b[1].y, this.b[2].y, this.b[3].y, t1.elapsed);
       line(this.lastPoint.x, this.lastPoint.y, nextX, nextY);
       this.lastPoint = createVector(nextX, nextY);
     } else if (this.type === Type.Line) {
       this.x = lerp(this.x, this.destination.x, t2.elapsed);
       this.y = lerp(this.y, this.destination.y, t2.elapsed);
-      bezier(this.x, this.y, this.b[1].x, this.b[1].y, this.b[2].x, this.b[2].y, this.b[3].x, this.b[3].y);
+      const anchor = this.r < 0.5 ? this.origin : createVector(this.x, this.y);
+      bezier(
+        this.x,
+        this.y,
+        anchor.x + this.b[1].x,
+        anchor.y + this.b[1].y,
+        anchor.x + this.b[2].x,
+        anchor.y + this.b[2].y,
+        anchor.x + this.b[3].x,
+        anchor.y + this.b[3].y
+      );
     }
   }
 }
 
-function randomBezier(x, y) {
-  const points = [createVector(x, y)];
+function randomBezier() {
+  const points = [createVector(0, 0)];
   for (let i = 0; i < 3; i++) {
     points.push(createVector(points[i].x + random(-DISTANCE, DISTANCE), points[i].y + random(-DISTANCE, DISTANCE)));
   }
@@ -99,12 +113,10 @@ function draw() {
   }
   if (t2?.finished) {
     t2 = undefined;
-    particles = [];
-    t3 = Timing.frames(1, { loop: false });
+    reset();
   }
 
   if (t3?.finished) {
-    reset();
   }
 }
 
