@@ -1,6 +1,8 @@
 /// <reference types="p5/global" />
 
 // constants
+const SIZE = 128;
+const DIFF_THRESHOLD = 0.1;
 
 // locals
 let capture;
@@ -8,12 +10,14 @@ let pg, previousFrame;
 let ratio;
 let brickW;
 let brickH;
-let SIZE = 128;
+let matrix = new Matrix(SIZE, SIZE);
 let firstFrameRendered = false;
 function setup() {
   createCanvas(700, 700);
   noStroke();
   rectMode(CENTER);
+  randomPalette();
+
   // pixelDensity(1);
   //   background(0);
   pg = createGraphics(SIZE, SIZE);
@@ -42,51 +46,42 @@ function draw() {
       const prevC = previousFrame.get(x, y);
       // distance between the colors
       const diff = dist(red(c), green(c), blue(c), red(prevC), green(prevC), blue(prevC)) / 255;
-      // if (x == col && y == row) {
-      //   console.log(diff);
-      // }
-      const chosenC = diff < 0.05 ? color(0) : c;
-      // const b = (red(c) + green(c) + blue(c)) / (255 * 3);
-      // fill(c);
-      drawBrick(x * brickW + brickW / 2, y * brickH + brickH / 2, brickW, brickH, chosenC, x === col && y === row); //chosenC);
+      // console.log(x, y);
+      if (diff > DIFF_THRESHOLD) {
+        const current = matrix.get(x, y);
+        matrix.set(x, y, (current + 1) % PALETTE.length);
+      }
 
+      push();
+      translate(x * brickW + brickW / 2, y * brickH + brickH / 2);
+      fill(PALETTE[matrix.get(x, y)]);
+      noStroke();
+
+      rect(0, 0, brickW, brickH);
       // ellipse((x * width) / SIZE, (y * height) / SIZE, (b * width) / SIZE, (b * height) / SIZE);
+
+      pop();
     }
   }
   // drawBrick(width / 2, height / 2, 100, 100, color(255, 0, 0));
 }
 
-function drawBrick(x, y, w, h, c, highlight) {
-  const ratio = 0.3;
-  const dark = color(red(c) * ratio, green(c) * ratio, blue(c) * ratio);
-  push();
-  translate(x, y);
-  fill(c);
-  noStroke();
-  if (highlight) {
-    stroke('yellow');
-    strokeWeight(4);
-  }
-  rect(0, 0, w, h);
-  noStroke();
-  fill(dark);
-  ellipse(-w / 14, w / 14, w / 2 + w / 14, h / 2 + w / 14);
-
-  fill(c);
-  stroke(dark);
-  strokeWeight(2);
-  ellipse(0, 0, w / 2, h / 2);
-  pop();
-}
+function drawBrick(x, y, w, h, c, highlight) {}
 
 let isLooping = true;
 let row, col;
 function mouseClicked() {
   // get the square
-  const x = mouseX;
-  const y = mouseY;
-  row = Math.floor(y / brickH);
-  col = Math.floor(x / brickW);
+  // const x = mouseX;
+  // const y = mouseY;
+  // row = Math.floor(y / brickH);
+  // col = Math.floor(x / brickW);
+  randomPalette();
+  for (let x = 0; x < SIZE; x++) {
+    for (let y = 0; y < SIZE; y++) {
+      matrix.set(x, y, 0);
+    }
+  }
 
   // if (isLooping) {
   //   noLoop();
