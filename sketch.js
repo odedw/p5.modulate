@@ -1,88 +1,157 @@
 /// <reference types="p5/global" />
 
 // constants
-const SIZE = 128;
-const DIFF_THRESHOLD = 0.1;
+const MIN_RADIUS = 20;
+const DIFF_RADIUS = 20;
+const NUM_CIRCLES = 4;
+const SIZE = MIN_RADIUS * (NUM_CIRCLES + 1);
 
 // locals
-let capture;
-let pg, previousFrame;
-let ratio;
-let brickW;
-let brickH;
-let matrix = new Matrix(SIZE, SIZE);
-let firstFrameRendered = false;
+let particles = [],
+  cells = [],
+  lfo1,
+  pg1,
+  pg2,
+  t1;
+
+const Scenes = {
+  SquaresVertical: 0,
+  SquaresHorizontal: 1,
+  Circles: 2,
+};
+initScenes([Scenes.SquaresVertical, Scenes.Circles, Scenes.SquaresHorizontal, Scenes.Circles]);
+
+class Cell {
+  constructor(x, y, w, h, c) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.c = c;
+  }
+
+  draw(frame) {
+    frame.push();
+    frame.translate(this.x, this.y);
+    frame.noStroke();
+    frame.fill(this.c);
+    frame.rect(0, 0, this.w, this.h);
+    frame.pop();
+  }
+}
+
+class Particle {
+  constructor(x, y, colors) {
+    this.x = x;
+    this.y = y;
+    this.colors = colors;
+  }
+
+  draw() {
+    push();
+    translate(this.x, this.y);
+    // rotate(lfo1.value);
+    noFill();
+    stroke(255);
+    strokeWeight(2);
+    const coords = [
+      [1, 1],
+      [1, -1],
+      [-1, -1],
+      [-1, 1],
+    ];
+    for (let i = 0; i < NUM_CIRCLES; i++) {
+      for (let j = 0; j < 4; j++) {
+        stroke(this.colors[j]);
+        arc(0, 0, MIN_RADIUS + i * DIFF_RADIUS, MIN_RADIUS + i * DIFF_RADIUS, j * HALF_PI, (j + 1) * HALF_PI);
+      }
+    }
+    pop();
+  }
+}
+
+function onSceneChanged(prev, next) {
+  if (next === Scenes.Circles) {
+    for (const p of particles) {
+      p.colors = [
+        pg2.get(p.x + SIZE / 2, p.y + SIZE / 2),
+        pg2.get(p.x - SIZE / 2, p.y + SIZE / 2),
+        pg2.get(p.x - SIZE / 2, p.y - SIZE / 2),
+        pg2.get(p.x + SIZE / 2, p.y - SIZE / 2),
+      ];
+    }
+
+    const p = particles[0];
+  }
+}
+
 function setup() {
   createCanvas(700, 700);
-  noStroke();
+  stroke(255);
   rectMode(CENTER);
   randomPalette();
+  for (let x = 0; x <= width; x += SIZE) {
+    for (let y = 0; y <= height; y += SIZE) {
+      particles.push(new Particle(x, y, [color(255), color(255), color(255), color(255)]));
+      cells.push(new Cell(x, y, SIZE, SIZE, random(PALETTE)));
+    }
+  }
 
+  background(0, 0, 0, 0);
+  for (const p of particles) {
+    p.draw();
+  }
+  pg1 = createGraphics(width, height);
+  pg2 = createGraphics(width, height);
+  // cells.forEach((c) => c.draw(pg1));
+  cells.forEach((c) => c.draw(pg2));
+  maskBuffer();
+
+  // lfo1 = createLfo(LfoWaveform.Sawtooth, Timing.frames(120), 0, TWO_PI);
   // pixelDensity(1);
   //   background(0);
-  pg = createGraphics(SIZE, SIZE);
-  previousFrame = createGraphics(SIZE, SIZE);
-  capture = createCapture(VIDEO);
-  capture.hide();
-  pg.scale(-1, 1);
-  brickW = width / SIZE;
-  brickH = height / SIZE;
+}
+
+function maskBuffer() {
+  const start = millis();
+  pg1.background(0);
+  loadPixels();
+  pg1.loadPixels();
+  pg2.loadPixels();
+  for (let x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) {
+      const index = (x + y * width) * 4;
+      const r = pixels[index];
+      const g = pixels[index + 1];
+      const b = pixels[index + 2];
+      if (r != 0 && g != 0 && b != 0) {
+        pg1.pixels[index] = pg2.pixels[index];
+        pg1.pixels[index + 1] = pg2.pixels[index + 1];
+        pg1.pixels[index + 2] = pg2.pixels[index + 2];
+        pg1.pixels[index + 3] = pg2.pixels[index + 3];
+      }
+    }
+  }
+  pg1.updatePixels();
+
+  console.log('copyToImageBuffer', millis() - start);
 }
 
 function draw() {
   background(0);
-  const w = pg.height * (capture.width / capture.height);
-  const x = -w - (pg.width - w) / 2;
-  if (!firstFrameRendered) {
-    previousFrame.image(capture, x, 0, w, pg.height);
-  } else {
-    previousFrame.image(pg, 0, 0, pg.width, pg.height);
-  }
-  pg.image(capture, x, 0, w, pg.height);
-  firstFrameRendered = true;
-  for (let x = 0; x < pg.width; x++) {
-    for (let y = 0; y < pg.height; y++) {
-      const c = pg.get(x, y);
-      const prevC = previousFrame.get(x, y);
-      // distance between the colors
-      const diff = dist(red(c), green(c), blue(c), red(prevC), green(prevC), blue(prevC)) / 255;
-      // console.log(x, y);
-      if (diff > DIFF_THRESHOLD) {
-        const current = matrix.get(x, y);
-        matrix.set(x, y, (current + 1) % PALETTE.length);
-      }
-
-      push();
-      translate(x * brickW + brickW / 2, y * brickH + brickH / 2);
-      fill(PALETTE[matrix.get(x, y)]);
-      noStroke();
-
-      rect(0, 0, brickW, brickH);
-      // ellipse((x * width) / SIZE, (y * height) / SIZE, (b * width) / SIZE, (b * height) / SIZE);
-
-      pop();
+  if (currentScene === Scenes.Circles) {
+    for (const p of particles) {
+      p.draw();
     }
+  } else {
+    image(pg1, 0, 0);
   }
-  // drawBrick(width / 2, height / 2, 100, 100, color(255, 0, 0));
 }
 
-function drawBrick(x, y, w, h, c, highlight) {}
-
 let isLooping = true;
-let row, col;
 function mouseClicked() {
-  // get the square
-  // const x = mouseX;
-  // const y = mouseY;
-  // row = Math.floor(y / brickH);
-  // col = Math.floor(x / brickW);
-  randomPalette();
-  for (let x = 0; x < SIZE; x++) {
-    for (let y = 0; y < SIZE; y++) {
-      matrix.set(x, y, 0);
-    }
-  }
-
+  // scene = scene === Scenes.Circles ? Scenes.Squares : Scenes.Circles;
+  nextScene();
   // if (isLooping) {
   //   noLoop();
   // } else {

@@ -111,3 +111,20 @@ function generateGrid(cols, rows, w, h) {
   }
   return points;
 }
+
+let scenes;
+let currentScene;
+function initScenes(s, current) {
+  scenes = s;
+  currentScene = current ?? scenes[0];
+}
+
+function nextScene() {
+  let index = scenes.indexOf(currentScene);
+  let prevScene = currentScene;
+  index = (index + 1) % scenes.length;
+  currentScene = scenes[index];
+  if (onSceneChanged) {
+    onSceneChanged(prevScene, currentScene);
+  }
+}
