@@ -114,16 +114,17 @@ function generateGrid(cols, rows, w, h) {
 
 let scenes;
 let currentScene;
-function initScenes(s, current) {
+let currentSceneIndex = 0;
+function initScenes(s) {
   scenes = s;
-  currentScene = current ?? scenes[0];
+  currentScene = scenes[0];
 }
 
 function nextScene() {
-  let index = scenes.indexOf(currentScene);
   let prevScene = currentScene;
-  index = (index + 1) % scenes.length;
-  currentScene = scenes[index];
+  currentSceneIndex = (currentSceneIndex + 1) % scenes.length;
+  // console.log('next scene', currentSceneIndex);
+  currentScene = scenes[currentSceneIndex];
   if (onSceneChanged) {
     onSceneChanged(prevScene, currentScene);
   }
