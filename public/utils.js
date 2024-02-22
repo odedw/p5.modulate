@@ -48,13 +48,13 @@ function createColorLfo() {
 }
 
 class Matrix {
-  constructor(cols, rows) {
+  constructor(cols, rows, defaultValue = 0) {
     this._matrix = [];
 
     for (let i = 0; i < cols; i++) {
       this._matrix.push([]);
       for (let j = 0; j < rows; j++) {
-        this._matrix[i].push(0);
+        this._matrix[i].push(defaultValue);
       }
     }
   }
@@ -75,7 +75,7 @@ class Matrix {
     return this._matrix[0].length;
   }
 
-  getNeighbors(x, y) {
+  getNeighbors(x, y, predicate) {
     const neighbors = [];
 
     for (let i = x - 1; i <= x + 1; i++) {
@@ -92,11 +92,45 @@ class Matrix {
           continue;
         }
 
+        if (predicate && !predicate(this.get(i, j))) {
+          continue;
+        }
+
         neighbors.push({ x: i, y: j, value: this.get(i, j) });
       }
     }
 
     return neighbors;
+  }
+
+  bfs(startPoint, predicate) {
+    const queue = [startPoint];
+    const visited = new Set([`${startPoint.x},${startPoint.y}`]);
+
+    while (queue.length > 0) {
+      const { x, y } = queue.shift(); // Dequeue the next cell
+
+      if (predicate(this.get(x, y))) {
+        return { x, y }; // Found the target cell
+      }
+
+      // Get all valid, not yet visited neighbors
+      const neighbors = this.getNeighbors(x, y).filter((neighbor) => {
+        const key = `${neighbor.x},${neighbor.y}`;
+        if (visited.has(key)) {
+          return false;
+        }
+        visited.add(key); // Mark this neighbor as visited
+        return true;
+      });
+
+      // Enqueue all unvisited neighbors
+      for (const neighbor of neighbors) {
+        queue.push(neighbor);
+      }
+    }
+
+    return null; // No cell with value true was found
   }
 }
 
