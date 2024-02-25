@@ -154,12 +154,13 @@ function initScenes(s) {
   currentScene = scenes[0];
 }
 
+function onSceneChanged(prevScene, currentScene) {
+  console.log('scene changed', prevScene, currentScene);
+}
 function nextScene() {
   let prevScene = currentScene;
   currentSceneIndex = (currentSceneIndex + 1) % scenes.length;
   // console.log('next scene', currentSceneIndex);
   currentScene = scenes[currentSceneIndex];
-  if (onSceneChanged) {
-    onSceneChanged(prevScene, currentScene);
-  }
+  onSceneChanged(prevScene, currentScene);
 }

@@ -6,26 +6,36 @@ const ITERATIONS = 10000;
 // locals
 let blooms = [];
 let visitedMatrix, mappingMatrix;
-let gradient1Img, gradient1Pg;
+let gradient1Img, gradient1Pg, gradient2Img, gradient2Pg;
+
+const Scenes = {
+  BFS: 0,
+  DFS: 1,
+};
+initScenes([Scenes.BFS, Scenes.DFS]);
+
 class Bloom {
   constructor(x, y, pg) {
     this.x = x;
     this.y = y;
+    this.setPg(pg);
+
+    this.frontier = [{ x, y }];
+  }
+
+  setPg(pg) {
     this.pg = createGraphics(pg.width, pg.height);
     this.pg.image(pg, 0, 0);
-    this.visitedPg = new Matrix(pg.width, pg.height, false);
     this.pg.loadPixels();
+    this.visitedPg = new Matrix(pg.width, pg.height, false);
 
     const startPointInPg = { x: 0, y: 0 };
-    this.frontier = [{ x, y }];
-
-    mappingMatrix.set(x, y, startPointInPg);
+    mappingMatrix.set(this.x, this.y, startPointInPg);
     this.visitedPg.set(startPointInPg.x, startPointInPg.y, true);
-    this.visitedCount = 1;
     const color = this.pg.get(startPointInPg.x, startPointInPg.y);
     stroke(color);
     strokeWeight(1);
-    rect(x, y, 1, 1);
+    rect(this.x, this.y, 1, 1);
   }
 
   draw() {
@@ -49,21 +59,6 @@ class Bloom {
     // start from mapped point and run bfs
     const startPointInPg = mappingMatrix.get(point.x, point.y);
     let endPointInPg = this.visitedPg.bfs(startPointInPg, (val) => !val);
-    // const queue = [startPointInPg];
-    // while (queue.length > 0) {
-    //   const current = queue.shift();
-    //   const neighbors = this.visitedPg
-    //     .getNeighbors(current.x, current.y, (val) => !val)
-    //     .sort(() => Math.random() - 0.5);
-
-    //   for (const neighbor of neighbors) {
-    //     if (!this.visitedPg.get(neighbor.x, neighbor.y)) {
-    //       endPointInPg = neighbor;
-    //       break;
-    //     }
-    //     queue.push(neighbor);
-    //   }
-    // }
 
     if (!endPointInPg) {
       return;
@@ -86,20 +81,29 @@ class Bloom {
 }
 function preload() {
   gradient1Img = loadImage('public/assets/gradient2.png');
+  // gradient2Img = loadImage('public/assets/gradient2.png');
 }
 
 function setup() {
-  createCanvas(700, 700);
+  createCanvas(1000, 1000);
   stroke(255);
   rectMode(CENTER);
-  gradient1Pg = createGraphics(gradient1Img.width, gradient1Img.height);
-  gradient1Pg.image(gradient1Img, 0, 0);
+  pixelDensity(1);
+  gradient1Pg = createGraphics(width, height);
+  gradient1Pg.image(gradient1Img, 0, 0, width, height);
+  // gradient2Pg = createGraphics(width, height);
+  // gradient2Pg.image(gradient2Img, 0, 0, width, height);
+
   visitedMatrix = new Matrix(width, height, false);
   mappingMatrix = new Matrix(width, height, null);
 
-  blooms.push(new Bloom(width / 2, height / 2, gradient1Pg));
+  blooms.push(new Bloom(int(random(width)), int(random(height)), gradient1Pg));
+  blooms.push(new Bloom(int(random(width)), int(random(height)), gradient1Pg));
+  blooms.push(new Bloom(int(random(width)), int(random(height)), gradient1Pg));
   background(0);
 }
+
+let pgBool = false;
 
 function draw() {
   loadPixels();
@@ -108,8 +112,11 @@ function draw() {
       b.draw();
     }
   }
-  if (frameCount % 60 === 0) {
-    console.log(blooms[0].frontier.length, blooms[0].visitedCount);
+  if (frameCount % 5 === 0) {
+    console.log('===========================');
+
+    // blooms.forEach((b) => b.setPg(gradient1Pg));
+    // pgBool = !pgBool;
   }
   updatePixels();
 }
