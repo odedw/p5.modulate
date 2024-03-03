@@ -1,124 +1,232 @@
 /// <reference types="p5/global" />
 
 // constants
-const ITERATIONS = 10000;
-
+const RADIUS = 10;
+const ITERATIONS = 100;
+const DELTA_BOUNDARY = 50;
+const NUM_PARTICLES = 200;
 // locals
-let blooms = [];
-let visitedMatrix, mappingMatrix;
-let gradient1Img, gradient1Pg, gradient2Img, gradient2Pg;
-
+let particles = [];
+let trunk = [];
+let branches = [];
+let leaves = [];
+let spawnBounds, trunkBounds, branchesBounds;
 const Scenes = {
-  BFS: 0,
-  DFS: 1,
+  Trunk: 0,
+  Branches: 1,
+  Leaves: 2,
 };
-initScenes([Scenes.BFS, Scenes.DFS]);
 
-class Bloom {
-  constructor(x, y, pg) {
-    this.x = x;
-    this.y = y;
-    this.setPg(pg);
+initScenes([Scenes.Trunk, Scenes.Branches, Scenes.Leaves]);
 
-    this.frontier = [{ x, y }];
+function randomPoint() {
+  const v = createVector(
+    random(spawnBounds.minX - DELTA_BOUNDARY, spawnBounds.maxX + DELTA_BOUNDARY),
+    random(spawnBounds.minY - DELTA_BOUNDARY, spawnBounds.maxY + DELTA_BOUNDARY)
+  );
+  return v;
+}
+
+class Particle {
+  constructor(c, x, y) {
+    if (x && y) {
+      this.pos = createVector(x, y);
+      this.stuck = true;
+    } else {
+      this.pos = randomPoint();
+      this.stuck = false;
+    }
+    this.c = c;
   }
 
-  setPg(pg) {
-    this.pg = createGraphics(pg.width, pg.height);
-    this.pg.image(pg, 0, 0);
-    this.pg.loadPixels();
-    this.visitedPg = new Matrix(pg.width, pg.height, false);
+  update() {
+    var vel = p5.Vector.random2D();
+    this.pos.add(vel);
+    this.pos.x = constrain(this.pos.x, 0, width);
+    this.pos.y = constrain(this.pos.y, 0, height);
 
-    const startPointInPg = { x: 0, y: 0 };
-    mappingMatrix.set(this.x, this.y, startPointInPg);
-    this.visitedPg.set(startPointInPg.x, startPointInPg.y, true);
-    const color = this.pg.get(startPointInPg.x, startPointInPg.y);
-    stroke(color);
-    strokeWeight(1);
-    rect(this.x, this.y, 1, 1);
+    const particlesToCheckAgainst = currentScene === Scenes.Trunk ? trunk : branches;
+    if (particlesToCheckAgainst.some((p2) => stuckPredicate(this, p2))) {
+      this.stuck = true;
+    }
+  }
+
+  get x() {
+    return this.pos.x;
+  }
+
+  get y() {
+    return this.pos.y;
   }
 
   draw() {
-    if (this.frontier.length === 0) {
-      return;
-    }
-
-    // choose one point
-    const frontierIndex = int(random(this.frontier.length));
-    const point = this.frontier[frontierIndex];
-
-    // find an unvisited neighbor
-    const neighbors = mappingMatrix.getNeighbors(point.x, point.y, (val) => !val);
-    if (neighbors.length === 0) {
-      this.frontier.splice(frontierIndex, 1);
-      return;
-    }
-
-    const target = random(neighbors);
-
-    // start from mapped point and run bfs
-    const startPointInPg = mappingMatrix.get(point.x, point.y);
-    let endPointInPg = this.visitedPg.bfs(startPointInPg, (val) => !val);
-
-    if (!endPointInPg) {
-      return;
-    }
-
-    // mark it
-    this.visitedPg.set(endPointInPg.x, endPointInPg.y, true);
-    this.visitedCount++;
-    mappingMatrix.set(target.x, target.y, endPointInPg);
-    this.frontier.push(target);
-
-    //draw
-    const index = (target.y * width + target.x) * 4;
-    const pgIndex = (endPointInPg.y * this.pg.width + endPointInPg.x) * 4;
-    pixels[index] = this.pg.pixels[pgIndex];
-    pixels[index + 1] = this.pg.pixels[pgIndex + 1];
-    pixels[index + 2] = this.pg.pixels[pgIndex + 2];
-    pixels[index + 3] = this.pg.pixels[pgIndex + 3];
+    push();
+    noStroke();
+    translate(this.pos.x, this.pos.y);
+    fill(this.c);
+    ellipse(0, 0, RADIUS, RADIUS);
+    pop();
   }
 }
-function preload() {
-  gradient1Img = loadImage('public/assets/gradient2.png');
-  // gradient2Img = loadImage('public/assets/gradient2.png');
+
+function checkBounds(b, x, y, d = 0) {
+  return x >= b.minX - d && x <= b.maxX + d && y >= b.minY - d && y <= b.maxY + d;
+}
+function expandBounds(b, x, y) {
+  b.minX = min(x, b.minX);
+  b.minY = min(y, b.minY);
+  b.maxX = max(x, b.maxX);
+  b.maxY = max(y, b.maxY);
 }
 
+function stuckPredicate(p1, p2) {
+  if (currentScene == Scenes.Trunk) {
+    const d = p5.Vector.dist(p1.pos, p2.pos);
+    if (d < RADIUS) {
+      if (!checkBounds(trunkBounds, p1.x, p1.y, 0.5)) return false;
+      if (Math.random() < 0.09) expandBounds(trunkBounds, p1.x, p1.y);
+      const a = atan2(p1.pos.y - p2.pos.y, p1.pos.x - p2.pos.x);
+      return a > -180 && a < 0;
+    }
+
+    return false;
+  } else if (currentScene === Scenes.Branches) {
+    if (!checkBounds(branchesBounds, p2.x, p2.y)) return false;
+    const d = p5.Vector.dist(p1.pos, p2.pos);
+    if (d < RADIUS) {
+      const a = atan2(p1.pos.y - p2.pos.y, p1.pos.x - p2.pos.x);
+      return a > -180 && a < 0;
+    }
+  } else if (currentScene === Scenes.Leaves) {
+    const d = p5.Vector.dist(p1.pos, p2.pos);
+    if (d < RADIUS) {
+      return true;
+    }
+  }
+  return false;
+}
+function onSceneChanged(prev, next) {
+  if (prev === Scenes.Trunk) {
+    spawnBounds = {
+      minX: width / 2,
+      maxX: width / 2,
+      minY: height * 0.6,
+      maxY: height * 0.6,
+    };
+    particles = [];
+    for (let i = 0; i < NUM_PARTICLES; i++) {
+      particles.push(new Particle('brown'));
+    }
+    let highestParticle;
+    for (const p of trunk) {
+      if (!highestParticle || highestParticle.y > p.y) {
+        highestParticle = p;
+      }
+    }
+    branches.push(highestParticle);
+  } else if (prev === Scenes.Branches) {
+    spawnBounds = {
+      minX: width / 2,
+      maxX: width / 2,
+      minY: height * 0.2,
+      maxY: height * 0.2,
+    };
+    particles = [];
+    for (let i = 0; i < NUM_PARTICLES; i++) {
+      particles.push(new Particle('green'));
+    }
+  }
+}
 function setup() {
-  createCanvas(1000, 1000);
+  createCanvas(700, 700);
   stroke(255);
   rectMode(CENTER);
-  pixelDensity(1);
-  gradient1Pg = createGraphics(width, height);
-  gradient1Pg.image(gradient1Img, 0, 0, width, height);
-  // gradient2Pg = createGraphics(width, height);
-  // gradient2Pg.image(gradient2Img, 0, 0, width, height);
+  angleMode(DEGREES);
 
-  visitedMatrix = new Matrix(width, height, false);
-  mappingMatrix = new Matrix(width, height, null);
+  for (let i = 0; i < 10; i++) {
+    p = new Particle('brown', width / 2 + random(-RADIUS * 0.5, RADIUS * 0.5), height - RADIUS);
+    trunk.push(p);
+    if (!spawnBounds) {
+      spawnBounds = {
+        minX: p.pos.x,
+        maxX: p.pos.x,
+        minY: p.pos.y,
+        maxY: p.pos.y,
+      };
+    } else {
+      expandBounds(spawnBounds, p.x, p.y);
+    }
+  }
+  trunkBounds = {
+    minX: spawnBounds.minX,
+    maxX: spawnBounds.maxX,
+    minY: height * 0.75,
+    maxY: height,
+  };
+  branchesBounds = {
+    maxX: width * 0.9,
+    minX: width * 0.1,
+    minY: height * 0.2,
+    maxY: height * 0.8,
+  };
+  for (let i = 0; i < NUM_PARTICLES; i++) {
+    particles.push(new Particle('brown'));
+  }
 
-  blooms.push(new Bloom(int(random(width)), int(random(height)), gradient1Pg));
-  blooms.push(new Bloom(int(random(width)), int(random(height)), gradient1Pg));
-  blooms.push(new Bloom(int(random(width)), int(random(height)), gradient1Pg));
+  // pixelDensity(1);
   background(0);
 }
 
-let pgBool = false;
-
 function draw() {
-  loadPixels();
-  for (let i = 0; i < ITERATIONS; i++) {
-    for (const b of blooms) {
-      b.draw();
+  // background(0);
+  // iterate backwards so we can remove particles
+  for (let n = 0; n < ITERATIONS; n++) {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      let p = particles[i];
+      p.update();
+      if (p.stuck) {
+        particles.splice(i, 1);
+        if (currentScene === Scenes.Trunk) {
+          trunk.push(p);
+          particles.push(new Particle('brown'));
+        } else if (currentScene === Scenes.Branches) {
+          branches.push(p);
+          particles.push(new Particle('brown'));
+        } else if (currentScene === Scenes.Leaves) {
+          leaves.push(p);
+          particles.push(new Particle('green'));
+        }
+        expandBounds(spawnBounds, p.x, p.y);
+        p.draw();
+      }
     }
   }
-  if (frameCount % 5 === 0) {
-    console.log('===========================');
 
-    // blooms.forEach((b) => b.setPg(gradient1Pg));
-    // pgBool = !pgBool;
+  // for (let p of particles) {
+  //   p.draw();
+  // }
+  // for (let p of trunk) {
+  //   p.draw();
+  // }
+  // for (const p of branches) {
+  //   p.draw();
+  // }
+
+  // for (const p of leaves) {
+  //   p.draw();
+  // }
+
+  if (currentScene === Scenes.Trunk && spawnBounds.minY - 1 <= trunkBounds.minY) {
+    nextScene();
   }
-  updatePixels();
+
+  if (currentScene === Scenes.Branches && branches.length >= 1000) {
+    nextScene();
+  }
+
+  if (frameCount % 60 === 0) {
+    console.log(trunk.length, branches.length, leaves.length);
+  }
 }
 
 let isLooping = true;
