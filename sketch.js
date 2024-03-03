@@ -2,7 +2,7 @@
 
 // constants
 const RADIUS = 10;
-const ITERATIONS = 100;
+const ITERATIONS = 10;
 const DELTA_BOUNDARY = 50;
 const NUM_PARTICLES = 200;
 // locals
@@ -28,7 +28,7 @@ function randomPoint() {
 }
 
 class Particle {
-  constructor(c, x, y) {
+  constructor(c, x, y, r = RADIUS) {
     if (x && y) {
       this.pos = createVector(x, y);
       this.stuck = true;
@@ -46,8 +46,10 @@ class Particle {
     this.pos.y = constrain(this.pos.y, 0, height);
 
     const particlesToCheckAgainst = currentScene === Scenes.Trunk ? trunk : branches;
-    if (particlesToCheckAgainst.some((p2) => stuckPredicate(this, p2))) {
+    const stuckTo = particlesToCheckAgainst.find((p2) => stuckPredicate(this, p2));
+    if (stuckTo) {
       this.stuck = true;
+      stuckTo.stuckCount = stuckTo.stuckCount ? 1 : stuckTo.stuckCount + 1;
     }
   }
 
@@ -81,16 +83,22 @@ function expandBounds(b, x, y) {
 
 function stuckPredicate(p1, p2) {
   if (currentScene == Scenes.Trunk) {
+    if (p2.stuckCount > 1) {
+      return false;
+    }
     const d = p5.Vector.dist(p1.pos, p2.pos);
     if (d < RADIUS) {
       if (!checkBounds(trunkBounds, p1.x, p1.y, 0.5)) return false;
-      if (Math.random() < 0.09) expandBounds(trunkBounds, p1.x, p1.y);
+      if (Math.random() < 0.04) expandBounds(trunkBounds, p1.x, p1.y);
       const a = atan2(p1.pos.y - p2.pos.y, p1.pos.x - p2.pos.x);
       return a > -180 && a < 0;
     }
 
     return false;
   } else if (currentScene === Scenes.Branches) {
+    if (p2.stuckCount >= 1) {
+      return false;
+    }
     if (!checkBounds(branchesBounds, p2.x, p2.y)) return false;
     const d = p5.Vector.dist(p1.pos, p2.pos);
     if (d < RADIUS) {
@@ -191,7 +199,7 @@ function draw() {
           particles.push(new Particle('brown'));
         } else if (currentScene === Scenes.Branches) {
           branches.push(p);
-          particles.push(new Particle('brown'));
+          particles.push(new Particle('brown', null, null, RADIUS));
         } else if (currentScene === Scenes.Leaves) {
           leaves.push(p);
           particles.push(new Particle('green'));
