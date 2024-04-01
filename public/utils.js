@@ -164,3 +164,77 @@ function nextScene() {
   currentScene = scenes[currentSceneIndex];
   onSceneChanged(prevScene, currentScene);
 }
+
+// Define a point type
+function Point(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
+function getVertices(rect, gap = 0) {
+  const points = [];
+  const cosAngle = Math.cos(rect.a);
+  const sinAngle = Math.sin(rect.a);
+
+  const halfWidth = (rect.w + gap) / 2;
+  const halfHeight = (rect.h + gap) / 2;
+
+  points.push({
+    x: rect.x + cosAngle * halfWidth - sinAngle * halfHeight,
+    y: rect.y + sinAngle * halfWidth + cosAngle * halfHeight,
+  });
+  points.push({
+    x: rect.x - cosAngle * halfWidth - sinAngle * halfHeight,
+    y: rect.y - sinAngle * halfWidth + cosAngle * halfHeight,
+  });
+  points.push({
+    x: rect.x - cosAngle * halfWidth + sinAngle * halfHeight,
+    y: rect.y - sinAngle * halfWidth - cosAngle * halfHeight,
+  });
+  points.push({
+    x: rect.x + cosAngle * halfWidth + sinAngle * halfHeight,
+    y: rect.y + sinAngle * halfWidth - cosAngle * halfHeight,
+  });
+
+  return points;
+}
+
+function getAxes(vertices) {
+  const axes = [];
+  for (let i = 0; i < vertices.length; i++) {
+    const p1 = vertices[i];
+    const p2 = vertices[(i + 1) % vertices.length];
+    const edge = { x: p2.x - p1.x, y: p2.y - p1.y };
+    axes.push({ x: -edge.y, y: edge.x });
+  }
+  return axes;
+}
+
+function dotProduct(a, b) {
+  return a.x * b.x + a.y * b.y;
+}
+
+function projectRectangle(axis, vertices) {
+  let min = dotProduct(axis, vertices[0]);
+  let max = min;
+  vertices.forEach((vertex) => {
+    const projection = dotProduct(axis, vertex);
+    if (projection < min) min = projection;
+    if (projection > max) max = projection;
+  });
+  return [min, max];
+}
+
+function isOverlapOnAxis(axis, rectA, rectB) {
+  const projectionA = projectRectangle(axis, rectA);
+  const projectionB = projectRectangle(axis, rectB);
+  return projectionA[1] >= projectionB[0] && projectionB[1] >= projectionA[0];
+}
+
+function areRectanglesColliding(rectA, rectB, gap = 0) {
+  const verticesA = getVertices(rectA, gap);
+  const verticesB = getVertices(rectB, gap);
+
+  const axes = getAxes(verticesA).concat(getAxes(verticesB));
+  return axes.every((axis) => isOverlapOnAxis(axis, verticesA, verticesB));
+}
