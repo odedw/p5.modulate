@@ -1,4 +1,0 @@
-
-
-
-<!doctypehtml><canvas id=c></canvas><script>let c=document.getElementById("c"),x=c.getContext("2d"),w=c.width=700,h=c.height=700,r=Math.random;x.strokeStyle="white",x.fillStyle="black";let n=()=>({x:r()*w,y:r()*h,vx:r(),vy:r()}),bs=[n(),n()];function d(){x.fillRect(0,0,w,h),bs.forEach((t=>{t.x+=t.vx,t.y+=t.vy,(t.x>w||t.x<0)&&(t.vx*=-1),(t.y>h||t.y<0)&&(t.vy*=-1)}));for(let t=0;t<h;t+=10){x.beginPath();for(let e=0;e<w;e++){let l=bs.map((x=>((x.x-e)**2+(x.y-t)**2)**.5)).reduce(((t,e)=>t+e),0);x.lineTo(e,t+10*Math.sin(l/10))}x.stroke()}}setInterval((()=>{d()}),10);</script>
