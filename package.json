@@ -1,11 +1,10 @@
 {
   "name": "p5.modulate",
-  "version": "0.0.11",
+  "version": "0.0.20",
   "description": "A p5 library inspired by modular synthesizers.",
   "homepage": "https://github.com/odedw/p5.modulate",
   "license": "MIT",
   "author": "odedw",
-  "browser": "dist/p5.capture.umd.cjs",
   "files": [
     "dist"
   ],
@@ -20,18 +19,18 @@
     "creative-coding"
   ],
   "type": "module",
-  "main": "./dist/p5.modulate.umd.cjs",
-  "module": "./dist/p5.modulate.js",
+  "main": "./dist/p5.modulate.umd.js",
+  "module": "./dist/p5.modulate.es.js",
   "exports": {
     ".": {
-      "import": "./dist/p5.modulate.js",
-      "require": "./dist/p5.modulate.umd.cjs"
+      "import": "./dist/p5.modulate.es.js",
+      "require": "./dist/p5.modulate.umd.js"
     }
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "prepublish": "tsc && vite build",
+    "prepublish": "npm run build",
     "preview": "vite preview"
   },
   "devDependencies": {
