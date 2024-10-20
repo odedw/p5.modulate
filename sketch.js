@@ -10,12 +10,13 @@ const BALL_SIZE = 10;
 const RESTITUTION = 0.9;
 
 // locals
-let blocks = [];
-let balls = [];
-const { Bodies, Composite, Engine, Events, World, Runner, Body, Render } = Matter;
-let engine = Engine.create();
-let world = engine.world;
-let spawnX;
+let midiInitialized = false;
+let sequencers = [];
+let output;
+
+function noteName(note) {
+  return `${note.name().toUpperCase()}${note.accidental()}${note.octave()}`;
+}
 
 // var render = Render.create({
 //   element: document.body,
@@ -124,12 +125,33 @@ function init() {
   console.log('===========================');
 }
 function setup() {
-  createCanvas(700, 700);
+  createCanvas(500, 500);
   stroke(255);
   rectMode(CENTER);
+  const midi = new Midi();
+  midi.init().then(() => {
+    // midi.list();
+    output = midi.getOutput('browser-out');
+    midiInitialized = true;
+  });
+  const root = teoria.note('a2');
+  const scale = root.scale('lydian').notes();
+  sequencers.push(new Sequencer(8, scale[0], 'voice1', 1));
+  sequencers.push(new Sequencer(8, scale[4], 'voice2', 2));
+  sequencers.push(new Sequencer(8, scale[6], 'voice3', 3));
+  setInterval(() => {
+    if (midiInitialized) {
+      sequencers.forEach((sequencer, i) => {
+        const note = sequencer.tick();
+        if (output) {
+          output.channels[sequencer.channel].playNote(noteName(note), {
+            duration: 900,
+          });
+        }
+      });
+    }
+  }, 1000);
 
-  init();
-  // blocks.push(new Block(width / 2, height / 2, 400, BLOCK_HEIGHT, 0, 255));
   // pixelDensity(1);
   //   background(0);
 }
@@ -172,6 +194,14 @@ function mouseClicked() {
   // }
 
   // isLooping = !isLooping;
+}
+
+function keyPressed() {
+  if (key === ' ') {
+    for (const s of sequencers) {
+      s.reset();
+    }
+  }
 }
 
 // P5Capture.setDefaultOptions({
