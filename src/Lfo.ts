@@ -111,6 +111,12 @@ export class Lfo {
   }
 }
 
-export function createLfo(waveform: LfoWaveform, frequency: Timing, min: number = -1, max: number = 1): Lfo {
+export function createLfo(options: {
+  waveform: LfoWaveform,
+  frequency: Timing,
+  min?: number,
+  max?: number
+}): Lfo {
+  const { waveform, frequency, min = -1, max = 1 } = options;
   return new Lfo(waveform, frequency, min, max);
 }
