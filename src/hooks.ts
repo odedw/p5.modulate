@@ -1,4 +1,4 @@
-import { Envelope } from '.';
+import { Envelope, Sequencer } from '.';
 import { Timing } from './Timing';
 
 export function onDraw() {
@@ -17,5 +17,10 @@ export function onDraw() {
       if (stage === prevStage) break;
       prevStage = stage;
     }
+  }
+
+  // tick sequencers
+  for (const s of Sequencer.Registry) {
+    s.tick();
   }
 }
