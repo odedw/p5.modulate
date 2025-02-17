@@ -1,19 +1,28 @@
-export enum TimeFunctionType {
-  Frames,
-  Milliseconds,
-  Seconds,
-  Manual,
-}
+// Time function type constants
+export const TIME_FRAMES = 'frames';
+export const TIME_MILLISECONDS = 'milliseconds';
+export const TIME_SECONDS = 'seconds';
+export const TIME_MANUAL = 'manual';
 
-export enum Easing {
-  Linear,
-  EaseInQuad,
-  EaseOutQuad,
-  EaseInOutQuad,
-  EaseInCubic,
-  EaseOutCubic,
-  EaseInOutCubic,
-}
+export type TimeFunctionType = typeof TIME_FRAMES | typeof TIME_MILLISECONDS | typeof TIME_SECONDS | typeof TIME_MANUAL;
+
+// Easing function constants
+export const EASE_LINEAR = 'linear';
+export const EASE_IN_QUAD = 'ease-in-quad';
+export const EASE_OUT_QUAD = 'ease-out-quad';
+export const EASE_IN_OUT_QUAD = 'ease-in-out-quad';
+export const EASE_IN_CUBIC = 'ease-in-cubic';
+export const EASE_OUT_CUBIC = 'ease-out-cubic';
+export const EASE_IN_OUT_CUBIC = 'ease-in-out-cubic';
+
+export type EasingType =
+  | typeof EASE_LINEAR
+  | typeof EASE_IN_QUAD
+  | typeof EASE_OUT_QUAD
+  | typeof EASE_IN_OUT_QUAD
+  | typeof EASE_IN_CUBIC
+  | typeof EASE_OUT_CUBIC
+  | typeof EASE_IN_OUT_CUBIC;
 
 export class TimeFunction {
   static Registry: TimeFunction[] = [];
@@ -28,7 +37,7 @@ export class TimeFunction {
     public readonly phase: number = 0,
     public loop: boolean = true,
     public autoTrigger: boolean = true,
-    public easing: Easing = Easing.Linear
+    public easing: EasingType = EASE_LINEAR
   ) {
     TimeFunction.Registry.push(this);
     this.reset();
@@ -39,24 +48,21 @@ export class TimeFunction {
       this._active = true;
     }
 
-    if (this.type === TimeFunctionType.Manual) {
+    if (this.type === TIME_MANUAL) {
       this.elapsedSteps = this.phase;
-    } else if (this.type === TimeFunctionType.Frames) {
+    } else if (this.type === TIME_FRAMES) {
       this.elapsedFrames = this.phase;
-    } else if (this.type === TimeFunctionType.Milliseconds) {
+    } else if (this.type === TIME_MILLISECONDS) {
       this.elapsedTimeMs = this.phase;
-    } else if (this.type === TimeFunctionType.Seconds) {
+    } else if (this.type === TIME_SECONDS) {
       this.elapsedTimeMs = this.phase * 1000;
     }
   }
 
   advanceTime(timeMs: number) {
     this.elapsedTimeMs += timeMs;
-    const normalizedValue = this.type === TimeFunctionType.Milliseconds ? this.value : this.value * 1000;
-    if (
-      (this.type === TimeFunctionType.Milliseconds || this.type === TimeFunctionType.Seconds) &&
-      this.elapsedTimeMs >= normalizedValue
-    ) {
+    const normalizedValue = this.type === TIME_MILLISECONDS ? this.value : this.value * 1000;
+    if ((this.type === TIME_MILLISECONDS || this.type === TIME_SECONDS) && this.elapsedTimeMs >= normalizedValue) {
       if (this.loop) {
         this.elapsedTimeMs = this.elapsedTimeMs % normalizedValue;
       } else {
@@ -69,7 +75,7 @@ export class TimeFunction {
   advanceFrames(frames: number) {
     this.elapsedFrames += frames;
 
-    if (this.type === TimeFunctionType.Frames && this.elapsedFrames >= this.value) {
+    if (this.type === TIME_FRAMES && this.elapsedFrames >= this.value) {
       if (this.loop) {
         this.elapsedFrames = this.elapsedFrames % this.value;
       } else {
@@ -81,7 +87,7 @@ export class TimeFunction {
 
   advanceManual(steps: number = 1) {
     this.elapsedSteps += steps;
-    if (this.type === TimeFunctionType.Manual && this.elapsedSteps >= this.value) {
+    if (this.type === TIME_MANUAL && this.elapsedSteps >= this.value) {
       if (this.loop) {
         this.elapsedSteps = this.elapsedSteps % this.value;
       } else {
@@ -125,33 +131,33 @@ export class TimeFunction {
     }
 
     let result = 0;
-    if (this.type === TimeFunctionType.Frames) {
+    if (this.type === TIME_FRAMES) {
       result = this.elapsedFrames / this.value;
-    } else if (this.type === TimeFunctionType.Milliseconds) {
+    } else if (this.type === TIME_MILLISECONDS) {
       result = this.elapsedTimeMs / this.value;
-    } else if (this.type === TimeFunctionType.Seconds) {
+    } else if (this.type === TIME_SECONDS) {
       result = this.elapsedTimeMs / (this.value * 1000);
-    } else if (this.type === TimeFunctionType.Manual) {
+    } else if (this.type === TIME_MANUAL) {
       result = this.elapsedSteps / this.value;
     }
 
     switch (this.easing) {
-      case Easing.EaseInQuad:
+      case EASE_IN_QUAD:
         result = this.easeInQuad(result);
         break;
-      case Easing.EaseOutQuad:
+      case EASE_OUT_QUAD:
         result = this.easeOutQuad(result);
         break;
-      case Easing.EaseInOutQuad:
+      case EASE_IN_OUT_QUAD:
         result = this.easeInOutQuad(result);
         break;
-      case Easing.EaseInCubic:
+      case EASE_IN_CUBIC:
         result = this.easeInCubic(result);
         break;
-      case Easing.EaseOutCubic:
+      case EASE_OUT_CUBIC:
         result = this.easeOutCubic(result);
         break;
-      case Easing.EaseInOutCubic:
+      case EASE_IN_OUT_CUBIC:
         result = this.easeInOutCubic(result);
         break;
     }
@@ -184,16 +190,16 @@ const defaultOpts = {
   phase: 0,
   loop: true,
   autoTrigger: true,
-  easing: Easing.Linear,
+  easing: EASE_LINEAR as EasingType,
 };
 
 export const TimeFunctionGenerator = {
   frames: function (
     frames: number,
-    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: Easing }
+    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: EasingType }
   ): TimeFunction {
     return new TimeFunction(
-      TimeFunctionType.Frames,
+      TIME_FRAMES,
       frames,
       opts?.phase ?? defaultOpts.phase,
       opts?.loop ?? defaultOpts.loop,
@@ -204,10 +210,10 @@ export const TimeFunctionGenerator = {
 
   milliseconds: function (
     ms: number,
-    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: Easing }
+    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: EasingType }
   ): TimeFunction {
     return new TimeFunction(
-      TimeFunctionType.Milliseconds,
+      TIME_MILLISECONDS,
       ms,
       opts?.phase ?? defaultOpts.phase,
       opts?.loop ?? defaultOpts.loop,
@@ -218,10 +224,10 @@ export const TimeFunctionGenerator = {
 
   seconds: function (
     s: number,
-    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: Easing }
+    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: EasingType }
   ): TimeFunction {
     return new TimeFunction(
-      TimeFunctionType.Seconds,
+      TIME_SECONDS,
       s,
       opts?.phase ?? defaultOpts.phase,
       opts?.loop ?? defaultOpts.loop,
@@ -232,10 +238,10 @@ export const TimeFunctionGenerator = {
 
   manual: function (
     s: number = 0,
-    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: Easing }
+    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: EasingType }
   ): TimeFunction {
     return new TimeFunction(
-      TimeFunctionType.Manual,
+      TIME_MANUAL,
       s,
       opts?.phase ?? defaultOpts.phase,
       opts?.loop ?? defaultOpts.loop,

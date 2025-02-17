@@ -1,28 +1,29 @@
-import { TimeFunction, TimeFunctionType } from './TimeFunction';
+import { TimeFunction, TIME_MANUAL } from './TimeFunction';
 
-export enum LfoWaveform {
-  Sine,
-  Square,
-  Saw,
-  Triangle,
-}
+// Waveform constants
+export const WAVE_SINE = 'sine';
+export const WAVE_SQUARE = 'square';
+export const WAVE_SAW = 'saw';
+export const WAVE_TRIANGLE = 'triangle';
+
+export type WaveformType = typeof WAVE_SINE | typeof WAVE_SQUARE | typeof WAVE_SAW | typeof WAVE_TRIANGLE;
 
 export class Lfo {
   private _value: number = 0;
 
-  constructor(public waveform: LfoWaveform, public frequency: TimeFunction, public min: number, public max: number) {
+  constructor(public waveform: WaveformType, public frequency: TimeFunction, public min: number, public max: number) {
     this.update();
   }
 
   get value(): number {
-    if (this.frequency.type === TimeFunctionType.Manual) {
+    if (this.frequency.type === TIME_MANUAL) {
       this.update();
     }
     return this._value;
   }
 
   update() {
-    if (this.frequency.type === TimeFunctionType.Manual) {
+    if (this.frequency.type === TIME_MANUAL) {
       this.frequency.advanceManual();
     }
 
@@ -30,16 +31,16 @@ export class Lfo {
     let value = 0;
 
     switch (this.waveform) {
-      case LfoWaveform.Sine:
+      case WAVE_SINE:
         value = sin(elapsed * TWO_PI);
         break;
-      case LfoWaveform.Square:
+      case WAVE_SQUARE:
         value = elapsed < 0.5 ? 1 : -1;
         break;
-      case LfoWaveform.Saw:
+      case WAVE_SAW:
         value = elapsed * 2 - 1;
         break;
-      case LfoWaveform.Triangle:
+      case WAVE_TRIANGLE:
         if (elapsed < 0.25) {
           value = elapsed * 4;
         } else if (elapsed < 0.75) {
@@ -75,7 +76,7 @@ export class Lfo {
 }
 
 export function createLfo(options: {
-  waveform: LfoWaveform;
+  waveform: WaveformType;
   frequency: TimeFunction;
   min?: number;
   max?: number;

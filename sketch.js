@@ -46,8 +46,8 @@ function setup() {
   createCanvas(700, 700);
   rectMode(CENTER);
   // lfo1 = createLfo({
-  //   waveform: LfoWaveform.Sine,
-  //   frequency: Timing.frames(6),
+  //   waveform: WAVE_SINE,
+  //   frequency: TimeFunction.frames(6),
   //   min: -PI,
   //   max: PI,
   // });
