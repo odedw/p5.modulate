@@ -1,0 +1,70 @@
+---
+description: Defines naming conventions for constants in p5.modulate
+globs: src/**/*.ts
+---
+
+## Constant Naming Convention
+
+Constants in p5.modulate follow these rules:
+
+### Format
+1. Use UPPER_SNAKE_CASE for all constant names
+2. Use abbreviated prefixes to group related constants:
+   - `WAVE_` for waveform-related constants
+   - `ENV_` for envelope-related constants
+   - `SEQ_` for sequencer-related constants
+   - `TIME_` for timing-related constants
+3. Keep string values lowercase and simple
+
+### Examples
+```typescript
+// Good
+export const WAVE_SINE = 'sine';
+export const ENV_TRIGGER = 'trigger';
+export const SEQ_FORWARD = 'forward';
+export const TIME_FRAMES = 'frames';
+
+// Bad
+export const SINE = 'sine';              // Missing prefix
+export const WaveformSine = 'sine';      // Wrong case
+export const WAVEFORM_SINE = 'Sine';     // Value should be lowercase
+export const wave_sine = 'sine';         // Wrong case
+```
+
+### Organization
+1. Group related constants together
+2. Use comments to label groups
+3. Export all constants that will be used externally
+4. Add to p5.prototype when needed for global access
+
+### Example Implementation
+```typescript
+// Waveform constants
+export const WAVE_SINE = 'sine';
+export const WAVE_SQUARE = 'square';
+export const WAVE_SAW = 'saw';
+export const WAVE_TRIANGLE = 'triangle';
+
+// Add to p5 prototype
+p5.prototype.WAVE_SINE = WAVE_SINE;
+p5.prototype.WAVE_SQUARE = WAVE_SQUARE;
+p5.prototype.WAVE_SAW = WAVE_SAW;
+p5.prototype.WAVE_TRIANGLE = WAVE_TRIANGLE;
+```
+
+### TypeScript Integration
+```typescript
+// Define type using union of constant values
+export type WaveformType = 
+  | typeof WAVE_SINE 
+  | typeof WAVE_SQUARE 
+  | typeof WAVE_SAW 
+  | typeof WAVE_TRIANGLE;
+```
+
+### Rationale
+1. Abbreviated prefixes provide clear grouping while staying concise
+2. Consistent with p5.js's use of individual constants
+3. Avoids conflicts with p5.js function names
+4. Enables good IDE autocompletion
+5. Makes constants' purpose immediately clear 

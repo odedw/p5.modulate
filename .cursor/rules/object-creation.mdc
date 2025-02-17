@@ -1,0 +1,53 @@
+---
+description: Defines the object creation pattern for p5.modulate components using factory functions following p5.js conventions
+globs: src/**/*.ts
+---
+
+## Object Creation Pattern
+**Applies to**: `src/**/*.ts`
+
+p5.modulate uses the factory function pattern for object creation, following p5.js conventions.
+
+### Rules
+1. Objects should be created using factory functions with the `create` prefix
+2. Factory functions should be added to the p5 prototype
+3. Implementation classes can exist but should not be exposed in the public API
+4. Factory functions should accept a single options object parameter
+5. All factory functions should work in both global and instance mode
+
+### Example
+```typescript
+// Internal implementation
+class Lfo {
+  constructor(options: LfoOptions) {
+    // implementation
+  }
+}
+
+// Public factory function
+function createLfo(options: LfoOptions): Lfo {
+  return new Lfo(options);
+}
+
+// Add to p5 prototype
+p5.prototype.createLfo = createLfo;
+```
+
+### Usage
+```typescript
+// Global mode
+let lfo = createLfo({ frequency: 1, waveform: 'sine' });
+
+// Instance mode
+function sketch(p) {
+  let lfo = p.createLfo({ frequency: 1, waveform: 'sine' });
+}
+```
+
+### Rationale
+- Follows p5.js conventions (e.g., `createCanvas()`, `createVector()`)
+- Familiar to p5.js users
+- Works well in both global and instance mode
+- Beginner-friendly
+- Hides implementation details
+- Allows for future implementation changes without affecting the API 
