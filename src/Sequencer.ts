@@ -1,4 +1,4 @@
-import { Timing } from './Timing';
+import { TimeFunction } from './TimeFunction';
 
 export class Sequencer {
   static Registry: Sequencer[] = [];
@@ -6,7 +6,7 @@ export class Sequencer {
   private _values: number[] = [];
 
   constructor(
-    public readonly frequency: Timing,
+    public readonly frequency: TimeFunction,
     public readonly min: number,
     public readonly max: number,
     public readonly steps: number
@@ -55,9 +55,44 @@ export class Sequencer {
     this._currentStep = 0;
     this.frequency.reset();
   }
+
+  get active(): boolean {
+    return this.frequency.active;
+  }
+
+  get finished(): boolean {
+    return this.frequency.finished;
+  }
+
+  activate() {
+    this.frequency.activate();
+  }
+
+  deactivate() {
+    this.frequency.deactivate();
+  }
+
+  update() {
+    if (!this.active) {
+      return;
+    }
+
+    const elapsed = this.frequency.elapsed;
+    const stepSize = 1 / this.steps;
+    const currentStep = Math.floor(elapsed / stepSize);
+    if (currentStep !== this._currentStep) {
+      this._currentStep = currentStep;
+      this._values[this._currentStep] = map(random(), 0, 1, this.min, this.max);
+    }
+  }
 }
 
-export function createSequencer(options: { frequency: Timing; min?: number; max?: number; steps: number }): Sequencer {
+export function createSequencer(options: {
+  frequency: TimeFunction;
+  min?: number;
+  max?: number;
+  steps: number;
+}): Sequencer {
   const { frequency, min = 0, max = 1, steps } = options;
   return new Sequencer(frequency, min, max, steps);
 }

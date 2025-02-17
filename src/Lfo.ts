@@ -1,122 +1,85 @@
-import { Timing, TimingType } from './Timing';
+import { TimeFunction, TimeFunctionType } from './TimeFunction';
 
 export enum LfoWaveform {
   Sine,
-  Triangle,
   Square,
-  Sawtooth,
-  Noise,
+  Saw,
+  Triangle,
 }
 
 export class Lfo {
-  static Registry: Lfo[] = [];
+  private _value: number = 0;
 
-  private _manualValue: number = 0;
-
-  constructor(public waveform: LfoWaveform, public frequency: Timing, public min: number, public max: number) {
-    Lfo.Registry.push(this);
-    if (frequency.timingType === TimingType.Manual) {
-      this.calculateManualValue();
-    }
+  constructor(public waveform: LfoWaveform, public frequency: TimeFunction, public min: number, public max: number) {
+    this.update();
   }
 
   get value(): number {
-    if (this.frequency.timingType === TimingType.Manual) {
-      return this._manualValue;
+    if (this.frequency.type === TimeFunctionType.Manual) {
+      this.update();
     }
-
-    // get mapped x value in the cycle
-    const x = map(this.frequency.elapsed, 0, 1, 0, TWO_PI);
-
-    // map x to a value based on the waveform
-    let v;
-    if (this.waveform === LfoWaveform.Sine) {
-      v = map(sin(x), -1, 1, this.min, this.max);
-    } else if (this.waveform === LfoWaveform.Triangle) {
-      v = this.getTriangleValue(x);
-    } else if (this.waveform === LfoWaveform.Square) {
-      v = this.getSquareValue(x);
-    } else if (this.waveform === LfoWaveform.Sawtooth) {
-      v = this.getSawtoothValue(x);
-    } else if (this.waveform === LfoWaveform.Noise) {
-      v = random(this.min, this.max);
-    } else {
-      return 0;
-    }
-
-    return v;
+    return this._value;
   }
 
-  private calculateManualValue() {
-    // compute new value
-    const current = this.frequency.elapsed;
-    const x = map(current, 0, 1, 0, TWO_PI);
-    let v;
-    if (this.waveform === LfoWaveform.Sine) {
-      v = map(sin(x), -1, 1, this.min, this.max);
-    } else if (this.waveform === LfoWaveform.Triangle) {
-      v = this.getTriangleValue(x);
-    } else if (this.waveform === LfoWaveform.Square) {
-      v = this.getSquareValue(x);
-    } else if (this.waveform === LfoWaveform.Sawtooth) {
-      v = this.getSawtoothValue(x);
-    } else if (this.waveform === LfoWaveform.Noise) {
-      v = random(this.min, this.max);
-    } else {
-      v = 0;
+  update() {
+    if (this.frequency.type === TimeFunctionType.Manual) {
+      this.frequency.advanceManual();
     }
 
-    this._manualValue = v;
-  }
+    const elapsed = this.frequency.elapsed;
+    let value = 0;
 
-  public step(): number {
-    this.frequency.advanceManual();
-    this.calculateManualValue();
-    return this._manualValue;
-  }
-
-  private getTriangleValue(x: number): number {
-    let v;
-    if (x < PI * 0.5) {
-      v = map(x, 0, PI * 0.5, 0, 1);
-    } else if (x < PI * 1.5) {
-      v = map(x, PI * 0.5, PI * 1.5, 1, -1);
-    } else {
-      v = map(x, PI * 1.5, TWO_PI, -1, 0);
+    switch (this.waveform) {
+      case LfoWaveform.Sine:
+        value = sin(elapsed * TWO_PI);
+        break;
+      case LfoWaveform.Square:
+        value = elapsed < 0.5 ? 1 : -1;
+        break;
+      case LfoWaveform.Saw:
+        value = elapsed * 2 - 1;
+        break;
+      case LfoWaveform.Triangle:
+        if (elapsed < 0.25) {
+          value = elapsed * 4;
+        } else if (elapsed < 0.75) {
+          value = 2 - elapsed * 4;
+        } else {
+          value = elapsed * 4 - 4;
+        }
+        break;
     }
 
-    return map(v, -1, 1, this.min, this.max);
+    this._value = map(value, -1, 1, this.min, this.max);
   }
 
-  private getSquareValue(x: number): number {
-    let v;
-    if (x < PI) {
-      v = 1;
-    } else {
-      v = -1;
-    }
-
-    return map(v, -1, 1, this.min, this.max);
+  get active(): boolean {
+    return this.frequency.active;
   }
 
-  private getSawtoothValue(x: number): number {
-    let v;
-    if (x < PI) {
-      v = map(x, 0, PI, 0, 1);
-    } else {
-      v = map(x, PI, TWO_PI, -1, 0);
-    }
+  get finished(): boolean {
+    return this.frequency.finished;
+  }
 
-    return map(v, -1, 1, this.min, this.max);
+  activate() {
+    this.frequency.activate();
+  }
+
+  deactivate() {
+    this.frequency.deactivate();
+  }
+
+  reset() {
+    this.frequency.reset();
   }
 }
 
 export function createLfo(options: {
-  waveform: LfoWaveform,
-  frequency: Timing,
-  min?: number,
-  max?: number
+  waveform: LfoWaveform;
+  frequency: TimeFunction;
+  min?: number;
+  max?: number;
 }): Lfo {
-  const { waveform, frequency, min = -1, max = 1 } = options;
+  const { waveform, frequency, min = 0, max = 1 } = options;
   return new Lfo(waveform, frequency, min, max);
 }

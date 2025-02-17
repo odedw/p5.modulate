@@ -12,13 +12,13 @@ class Particle {
     this.angle = random(0, TWO_PI);
     this.sequencers = {
       size: createSequencer({
-        frequency: Timing.frames(SEQUENCER_FREQUENCY),
+        frequency: TimeFunction.frames(SEQUENCER_FREQUENCY),
         steps: SEQUENCER_STEPS,
         min: random(50, 100),
         max: random(150, 200),
       }),
       angle: createSequencer({
-        frequency: Timing.frames(SEQUENCER_FREQUENCY),
+        frequency: TimeFunction.frames(SEQUENCER_FREQUENCY),
         steps: SEQUENCER_STEPS,
         min: -PI,
         max: PI,
@@ -58,6 +58,20 @@ function setup() {
 
   // pixelDensity(1);
   //   background(0);
+
+  sequencer1 = createSequencer({
+    steps: 8,
+    min: 0,
+    max: 1,
+    frequency: TimeFunction.frames(SEQUENCER_FREQUENCY),
+  });
+
+  sequencer2 = createSequencer({
+    steps: 8,
+    min: 0,
+    max: 1,
+    frequency: TimeFunction.frames(SEQUENCER_FREQUENCY),
+  });
 }
 
 function draw() {
@@ -66,6 +80,38 @@ function draw() {
     particle.update();
     particle.draw();
   });
+
+  // draw sequencer1
+  for (let i = 0; i < sequencer1.steps; i++) {
+    const x = map(i, 0, sequencer1.steps, 0, width);
+    const y = map(sequencer1.value, 0, 1, height, 0);
+    const w = width / sequencer1.steps;
+    const h = height - y;
+
+    if (i === sequencer1.step) {
+      fill(255, 0, 0);
+    } else {
+      fill(0);
+    }
+
+    rect(x, y, w, h);
+  }
+
+  // draw sequencer2
+  for (let i = 0; i < sequencer2.steps; i++) {
+    const x = map(i, 0, sequencer2.steps, 0, width);
+    const y = map(sequencer2.value, 0, 1, height, 0);
+    const w = width / sequencer2.steps;
+    const h = height - y;
+
+    if (i === sequencer2.step) {
+      fill(0, 255, 0);
+    } else {
+      fill(0);
+    }
+
+    rect(x, y, w, h);
+  }
 }
 
 let isLooping = true;

@@ -1,6 +1,5 @@
-import * as ModulateHooks from './hooks';
-export const modulateHooks = ModulateHooks;
+// export * from './Envelope';
 export * from './Lfo';
-export * from './Timing';
-export * from './Envelope';
 export * from './Sequencer';
+export * from './TimeFunction';
+export * from './hooks';
