@@ -1,10 +1,10 @@
 import { TimeFunction, TIME_MANUAL } from './TimeFunction';
 
 // Waveform constants
-export const WAVE_SINE = 'sine';
-export const WAVE_SQUARE = 'square';
-export const WAVE_SAW = 'saw';
-export const WAVE_TRIANGLE = 'triangle';
+export const WAVE_SINE = 'wave_sine';
+export const WAVE_SQUARE = 'wave_square';
+export const WAVE_SAW = 'wave_saw';
+export const WAVE_TRIANGLE = 'wave_triangle';
 
 export type WaveformType = typeof WAVE_SINE | typeof WAVE_SQUARE | typeof WAVE_SAW | typeof WAVE_TRIANGLE;
 

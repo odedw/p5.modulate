@@ -1,19 +1,19 @@
 // Time function type constants
-export const TIME_FRAMES = 'frames';
-export const TIME_MILLISECONDS = 'milliseconds';
-export const TIME_SECONDS = 'seconds';
-export const TIME_MANUAL = 'manual';
+export const TIME_FRAMES = 'time_frames';
+export const TIME_MILLISECONDS = 'time_milliseconds';
+export const TIME_SECONDS = 'time_seconds';
+export const TIME_MANUAL = 'time_manual';
 
 export type TimeFunctionType = typeof TIME_FRAMES | typeof TIME_MILLISECONDS | typeof TIME_SECONDS | typeof TIME_MANUAL;
 
 // Easing function constants
-export const EASE_LINEAR = 'linear';
-export const EASE_IN_QUAD = 'ease-in-quad';
-export const EASE_OUT_QUAD = 'ease-out-quad';
-export const EASE_IN_OUT_QUAD = 'ease-in-out-quad';
-export const EASE_IN_CUBIC = 'ease-in-cubic';
-export const EASE_OUT_CUBIC = 'ease-out-cubic';
-export const EASE_IN_OUT_CUBIC = 'ease-in-out-cubic';
+export const EASE_LINEAR = 'ease_linear';
+export const EASE_IN_QUAD = 'ease_in_quad';
+export const EASE_OUT_QUAD = 'ease_out_quad';
+export const EASE_IN_OUT_QUAD = 'ease_in_out_quad';
+export const EASE_IN_CUBIC = 'ease_in_cubic';
+export const EASE_OUT_CUBIC = 'ease_out_cubic';
+export const EASE_IN_OUT_CUBIC = 'ease_in_out_cubic';
 
 export type EasingType =
   | typeof EASE_LINEAR
