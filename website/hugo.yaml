@@ -1,0 +1,44 @@
+baseURL: "/"
+title: "p5.modulate"
+theme: dark-theme-editor
+
+# Language settings
+languageCode: "en-us"
+defaultContentLanguage: "en"
+
+# Enable syntax highlighting
+markup:
+  highlight:
+    style: monokai
+
+# Important Docsy parameters
+params:
+  # Site Author
+  author: "p5.modulate"
+  
+  # Site Description
+  description: "A powerful modulation library for p5.js"
+  
+  # Theme Customization
+  themeColor: "#2d333b"
+  
+  # Social Links
+  github: "yourusername/p5.modulate"
+  
+  # Navigation
+  mainSections: ["docs"]
+  
+  # Footer
+  showPoweredBy: true
+  copyright: "© 2024 The p5.modulate Authors"
+
+menu:
+  main:
+    - identifier: docs
+      name: Documentation
+      url: /docs/
+      weight: 10
+    - identifier: github
+      name: GitHub
+      url: https://github.com/yourusername/p5.modulate
+      weight: 30
