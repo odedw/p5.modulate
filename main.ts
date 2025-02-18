@@ -1,7 +1,8 @@
 import * as modulate from './src';
 
+// Add core functionality to p5 prototype
 p5.prototype.modulate = modulate;
-p5.prototype.TimeFunction = modulate.TimeFunctionGenerator;
+p5.prototype.createTimeFunction = modulate.createTimeFunction;
 p5.prototype.createLfo = modulate.createLfo;
 // p5.prototype.createEnvelope = modulate.createEnvelope;
 p5.prototype.createSequencer = modulate.createSequencer;

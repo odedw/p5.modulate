@@ -6,6 +6,16 @@ export const TIME_MANUAL = 'time_manual';
 
 export type TimeFunctionType = typeof TIME_FRAMES | typeof TIME_MILLISECONDS | typeof TIME_SECONDS | typeof TIME_MANUAL;
 
+// Run mode constants
+export const RUN_MODE_LOOP = 'run_mode_loop';
+export const RUN_MODE_ONCE = 'run_mode_once';
+export type RunMode = typeof RUN_MODE_LOOP | typeof RUN_MODE_ONCE;
+
+// Time function trigger constants
+export const TIME_TRIGGER_AUTO = 'time_trigger_auto';
+export const TIME_TRIGGER_MANUAL = 'time_trigger_manual';
+export type TimeFunctionTrigger = typeof TIME_TRIGGER_AUTO | typeof TIME_TRIGGER_MANUAL;
+
 // Easing function constants
 export const EASE_LINEAR = 'ease_linear';
 export const EASE_IN_QUAD = 'ease_in_quad';
@@ -24,49 +34,60 @@ export type EasingType =
   | typeof EASE_OUT_CUBIC
   | typeof EASE_IN_OUT_CUBIC;
 
+const easingFunctions: Record<EasingType, (x: number) => number> = {
+  [EASE_LINEAR]: (x) => x,
+  [EASE_IN_QUAD]: (x) => x * x,
+  [EASE_OUT_QUAD]: (x) => 1 - (1 - x) * (1 - x),
+  [EASE_IN_OUT_QUAD]: (x) => (x < 0.5 ? 2 * x * x : 1 - pow(-2 * x + 2, 2) / 2),
+  [EASE_IN_CUBIC]: (x) => x * x * x,
+  [EASE_OUT_CUBIC]: (x) => 1 - pow(1 - x, 3),
+  [EASE_IN_OUT_CUBIC]: (x) => (x < 0.5 ? 4 * x * x * x : 1 - pow(-2 * x + 2, 3) / 2),
+};
+
 export class TimeFunction {
-  static Registry: TimeFunction[] = [];
   private elapsedTimeMs: number = 0;
   private elapsedFrames: number = 0;
   private elapsedSteps: number = 0;
   private _active: boolean = false;
 
   constructor(
-    public readonly type: TimeFunctionType,
-    public readonly value: number = 0,
+    public readonly functionType: TimeFunctionType,
+    public readonly duration: number = 0,
     public readonly phase: number = 0,
-    public loop: boolean = true,
-    public autoTrigger: boolean = true,
-    public easing: EasingType = EASE_LINEAR
+    public readonly runMode: RunMode = RUN_MODE_LOOP,
+    public readonly trigger: TimeFunctionTrigger = TIME_TRIGGER_AUTO,
+    public readonly easingType: EasingType = EASE_LINEAR
   ) {
-    TimeFunction.Registry.push(this);
     this.reset();
   }
 
   reset() {
-    if (this.autoTrigger) {
+    if (this.trigger === TIME_TRIGGER_AUTO) {
       this._active = true;
     }
 
-    if (this.type === TIME_MANUAL) {
+    if (this.functionType === TIME_MANUAL) {
       this.elapsedSteps = this.phase;
-    } else if (this.type === TIME_FRAMES) {
+    } else if (this.functionType === TIME_FRAMES) {
       this.elapsedFrames = this.phase;
-    } else if (this.type === TIME_MILLISECONDS) {
+    } else if (this.functionType === TIME_MILLISECONDS) {
       this.elapsedTimeMs = this.phase;
-    } else if (this.type === TIME_SECONDS) {
+    } else if (this.functionType === TIME_SECONDS) {
       this.elapsedTimeMs = this.phase * 1000;
     }
   }
 
   advanceTime(timeMs: number) {
     this.elapsedTimeMs += timeMs;
-    const normalizedValue = this.type === TIME_MILLISECONDS ? this.value : this.value * 1000;
-    if ((this.type === TIME_MILLISECONDS || this.type === TIME_SECONDS) && this.elapsedTimeMs >= normalizedValue) {
-      if (this.loop) {
-        this.elapsedTimeMs = this.elapsedTimeMs % normalizedValue;
+    const normalizedDuration = this.functionType === TIME_MILLISECONDS ? this.duration : this.duration * 1000;
+    if (
+      (this.functionType === TIME_MILLISECONDS || this.functionType === TIME_SECONDS) &&
+      this.elapsedTimeMs >= normalizedDuration
+    ) {
+      if (this.runMode === RUN_MODE_LOOP) {
+        this.elapsedTimeMs = this.elapsedTimeMs % normalizedDuration;
       } else {
-        this.elapsedTimeMs = normalizedValue;
+        this.elapsedTimeMs = normalizedDuration;
         this.deactivate();
       }
     }
@@ -75,11 +96,11 @@ export class TimeFunction {
   advanceFrames(frames: number) {
     this.elapsedFrames += frames;
 
-    if (this.type === TIME_FRAMES && this.elapsedFrames >= this.value) {
-      if (this.loop) {
-        this.elapsedFrames = this.elapsedFrames % this.value;
+    if (this.functionType === TIME_FRAMES && this.elapsedFrames >= this.duration) {
+      if (this.runMode === RUN_MODE_LOOP) {
+        this.elapsedFrames = this.elapsedFrames % this.duration;
       } else {
-        this.elapsedFrames = this.value;
+        this.elapsedFrames = this.duration;
         this._active = false;
       }
     }
@@ -87,38 +108,14 @@ export class TimeFunction {
 
   advanceManual(steps: number = 1) {
     this.elapsedSteps += steps;
-    if (this.type === TIME_MANUAL && this.elapsedSteps >= this.value) {
-      if (this.loop) {
-        this.elapsedSteps = this.elapsedSteps % this.value;
+    if (this.functionType === TIME_MANUAL && this.elapsedSteps >= this.duration) {
+      if (this.runMode === RUN_MODE_LOOP) {
+        this.elapsedSteps = this.elapsedSteps % this.duration;
       } else {
-        this.elapsedSteps = this.value;
+        this.elapsedSteps = this.duration;
         this.deactivate();
       }
     }
-  }
-
-  easeInQuad(x: number) {
-    return x * x;
-  }
-
-  easeOutQuad(x: number) {
-    return 1 - (1 - x) * (1 - x);
-  }
-
-  easeInOutQuad(x: number) {
-    return x < 0.5 ? 2 * x * x : 1 - pow(-2 * x + 2, 2) / 2;
-  }
-
-  easeInCubic(x: number) {
-    return x * x * x;
-  }
-
-  easeOutCubic(x: number) {
-    return 1 - pow(1 - x, 3);
-  }
-
-  easeInOutCubic(x: number) {
-    return x < 0.5 ? 4 * x * x * x : 1 - pow(-2 * x + 2, 3) / 2;
   }
 
   /**
@@ -126,43 +123,22 @@ export class TimeFunction {
    */
   get elapsed(): number {
     // zero timers are always done
-    if (this.value === 0) {
+    if (this.duration === 0) {
       return 1;
     }
 
     let result = 0;
-    if (this.type === TIME_FRAMES) {
-      result = this.elapsedFrames / this.value;
-    } else if (this.type === TIME_MILLISECONDS) {
-      result = this.elapsedTimeMs / this.value;
-    } else if (this.type === TIME_SECONDS) {
-      result = this.elapsedTimeMs / (this.value * 1000);
-    } else if (this.type === TIME_MANUAL) {
-      result = this.elapsedSteps / this.value;
+    if (this.functionType === TIME_FRAMES) {
+      result = this.elapsedFrames / this.duration;
+    } else if (this.functionType === TIME_MILLISECONDS) {
+      result = this.elapsedTimeMs / this.duration;
+    } else if (this.functionType === TIME_SECONDS) {
+      result = this.elapsedTimeMs / (this.duration * 1000);
+    } else if (this.functionType === TIME_MANUAL) {
+      result = this.elapsedSteps / this.duration;
     }
 
-    switch (this.easing) {
-      case EASE_IN_QUAD:
-        result = this.easeInQuad(result);
-        break;
-      case EASE_OUT_QUAD:
-        result = this.easeOutQuad(result);
-        break;
-      case EASE_IN_OUT_QUAD:
-        result = this.easeInOutQuad(result);
-        break;
-      case EASE_IN_CUBIC:
-        result = this.easeInCubic(result);
-        break;
-      case EASE_OUT_CUBIC:
-        result = this.easeOutCubic(result);
-        break;
-      case EASE_IN_OUT_CUBIC:
-        result = this.easeInOutCubic(result);
-        break;
-    }
-
-    return result;
+    return easingFunctions[this.easingType](result);
   }
 
   get isActive(): boolean {
@@ -186,74 +162,83 @@ export class TimeFunction {
   }
 }
 
-const defaultOpts = {
+interface TimeFunctionOptions {
+  functionType: TimeFunctionType;
+  duration: number;
+  phase?: number;
+  runMode?: RunMode;
+  trigger?: TimeFunctionTrigger;
+  easingType?: EasingType;
+}
+
+const defaultTimeFunctionOptions = {
   phase: 0,
-  loop: true,
-  autoTrigger: true,
-  easing: EASE_LINEAR as EasingType,
-};
+  runMode: RUN_MODE_LOOP,
+  trigger: TIME_TRIGGER_AUTO,
+  easingType: EASE_LINEAR,
+} as const;
 
-export const TimeFunctionGenerator = {
-  frames: function (
-    frames: number,
-    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: EasingType }
-  ): TimeFunction {
-    return new TimeFunction(
-      TIME_FRAMES,
-      frames,
-      opts?.phase ?? defaultOpts.phase,
-      opts?.loop ?? defaultOpts.loop,
-      opts?.autoTrigger ?? defaultOpts.autoTrigger,
-      opts?.easing ?? defaultOpts.easing
-    );
-  },
+/**
+ * Creates a new TimeFunction for controlling time-based progression
+ * @param options Configuration options
+ * @param options.functionType The type of time function (TIME_FRAMES, TIME_SECONDS, etc.)
+ * @param options.duration The duration/steps value (frames, seconds, etc. depending on type)
+ * @param [options.phase=0] Starting phase (0-1)
+ * @param [options.runMode=RUN_MODE_LOOP] Whether to loop or run once
+ * @param [options.trigger=TIME_TRIGGER_AUTO] Whether to auto-start or require manual trigger
+ * @param [options.easingType=EASE_LINEAR] Easing function to apply
+ */
+export function createTimeFunction(options: TimeFunctionOptions): TimeFunction {
+  const {
+    functionType,
+    duration,
+    phase = defaultTimeFunctionOptions.phase,
+    runMode = defaultTimeFunctionOptions.runMode,
+    trigger = defaultTimeFunctionOptions.trigger,
+    easingType = defaultTimeFunctionOptions.easingType,
+  } = options;
 
-  milliseconds: function (
-    ms: number,
-    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: EasingType }
-  ): TimeFunction {
-    return new TimeFunction(
-      TIME_MILLISECONDS,
-      ms,
-      opts?.phase ?? defaultOpts.phase,
-      opts?.loop ?? defaultOpts.loop,
-      opts?.autoTrigger ?? defaultOpts.autoTrigger,
-      opts?.easing ?? defaultOpts.easing
-    );
-  },
+  return new TimeFunction(functionType, duration, phase, runMode, trigger, easingType);
+}
 
-  seconds: function (
-    s: number,
-    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: EasingType }
-  ): TimeFunction {
-    return new TimeFunction(
-      TIME_SECONDS,
-      s,
-      opts?.phase ?? defaultOpts.phase,
-      opts?.loop ?? defaultOpts.loop,
-      opts?.autoTrigger ?? defaultOpts.autoTrigger,
-      opts?.easing ?? defaultOpts.easing
-    );
-  },
+// Convenience functions that wrap createTimeFunction
+// export const TimeFunctionHelpers = {
+//   frames(frames: number, opts?: Partial<Omit<TimeFunctionOptions, 'functionType' | 'duration'>>) {
+//     return createTimeFunction({
+//       functionType: TIME_FRAMES,
+//       duration: frames,
+//       ...opts,
+//     });
+//   },
 
-  manual: function (
-    s: number = 0,
-    opts: { phase?: number; loop?: boolean; autoTrigger?: boolean; easing?: EasingType }
-  ): TimeFunction {
-    return new TimeFunction(
-      TIME_MANUAL,
-      s,
-      opts?.phase ?? defaultOpts.phase,
-      opts?.loop ?? defaultOpts.loop,
-      opts?.autoTrigger ?? defaultOpts.autoTrigger,
-      opts?.easing ?? defaultOpts.easing
-    );
-  },
+//   seconds(s: number, opts?: Partial<Omit<TimeFunctionOptions, 'functionType' | 'duration'>>) {
+//     return createTimeFunction({
+//       functionType: TIME_SECONDS,
+//       duration: s,
+//       ...opts,
+//     });
+//   },
 
-  zero: function () {
-    return TimeFunctionGenerator.manual(0, {
-      loop: false,
-      autoTrigger: false,
-    });
-  },
-};
+//   milliseconds(ms: number, opts?: Partial<Omit<TimeFunctionOptions, 'functionType' | 'duration'>>) {
+//     return createTimeFunction({
+//       functionType: TIME_MILLISECONDS,
+//       duration: ms,
+//       ...opts,
+//     });
+//   },
+
+//   manual(steps: number = 0, opts?: Partial<Omit<TimeFunctionOptions, 'functionType' | 'duration'>>) {
+//     return createTimeFunction({
+//       functionType: TIME_MANUAL,
+//       duration: steps,
+//       ...opts,
+//     });
+//   },
+
+//   zero() {
+//     return TimeFunctionHelpers.manual(0, {
+//       runMode: RUN_MODE_ONCE,
+//       trigger: TIME_TRIGGER_MANUAL,
+//     });
+//   },
+// } as const;
