@@ -1,0 +1,158 @@
+---
+description: Defines patterns for factory method arguments in p5.modulate
+globs: src/**/*.ts
+---
+
+## Factory Method Argument Patterns
+**Applies to**: `src/**/*.ts`
+
+p5.modulate uses consistent patterns for factory method arguments to ensure a clear and maintainable API.
+
+### Primary Pattern: Options Object
+
+Use an options object for factory functions that:
+- Have more than 2 parameters
+- Have any optional parameters
+- Have parameters with logical grouping
+- Create complex objects
+
+```typescript
+// Good: Options object for complex factory
+export function createLfo(options: {
+  waveform: WaveformType;
+  frequency?: TimeFunction;
+  min?: number;
+  max?: number;
+}): Lfo {
+  const {
+    waveform,
+    frequency = TimeFunction.frames(60),
+    min = 0,
+    max = 1
+  } = options;
+  
+  return new Lfo(waveform, frequency, min, max);
+}
+
+// Usage
+const lfo = createLfo({
+  waveform: WAVE_SINE,
+  max: 2 // other params use defaults
+});
+```
+
+### Exception: Flat Arguments
+
+Use flat arguments only for very simple factory functions that:
+- Have 1-2 parameters
+- Have no optional parameters
+- Have an obvious parameter order
+- Are used very frequently
+
+```typescript
+// Good: Flat arguments for simple factory
+export function createVector(x: number, y: number): Vector {
+  return new Vector(x, y);
+}
+
+// Usage
+const vector = createVector(0, 1);
+```
+
+### Anti-patterns
+
+```typescript
+// Bad: Too many flat arguments
+export function createLfo(
+  waveform: WaveformType,
+  frequency: TimeFunction,
+  min: number,
+  max: number,
+  loop: boolean
+): Lfo {
+  return new Lfo(waveform, frequency, min, max, loop);
+}
+
+// Bad: Mixed pattern when all params are optional
+export function createTimeFunction(
+  type: TimeFunctionType,
+  value: number,
+  { loop, easing, phase }?: TimeFunctionOptions
+): TimeFunction {
+  // ...
+}
+
+// Bad: Builder pattern (too verbose for our needs)
+export function createLfo(): LfoBuilder {
+  return new LfoBuilder()
+    .withWaveform(WAVE_SINE)
+    .withFrequency(60)
+    .build();
+}
+```
+
+### Guidelines
+
+1. **Default Values**
+   - Provide sensible defaults for optional parameters
+   - Document default values in comments
+   - Make commonly used parameters required
+
+2. **Type Safety**
+   ```typescript
+   // Good: Clear interface for options
+   interface LfoOptions {
+     waveform: WaveformType;
+     frequency?: TimeFunction;
+     min?: number;
+     max?: number;
+   }
+
+   export function createLfo(options: LfoOptions): Lfo {
+     // ...
+   }
+   ```
+
+3. **Documentation**
+   ```typescript
+   /**
+    * Creates a new LFO (Low Frequency Oscillator)
+    * @param options Configuration options
+    * @param options.waveform The waveform type (WAVE_SINE, WAVE_SQUARE, etc.)
+    * @param [options.frequency=TimeFunction.frames(60)] The frequency of oscillation
+    * @param [options.min=0] Minimum output value
+    * @param [options.max=1] Maximum output value
+    */
+   export function createLfo(options: LfoOptions): Lfo {
+     // ...
+   }
+   ```
+
+4. **Validation**
+   ```typescript
+   // Good: Validate required parameters
+   export function createLfo(options: LfoOptions): Lfo {
+     if (!options.waveform) {
+       throw new Error('Waveform is required');
+     }
+     // ...
+   }
+   ```
+
+### Benefits
+
+1. **Consistency**: One primary pattern for most factory functions
+2. **Flexibility**: Easy to add new parameters without breaking changes
+3. **Self-documenting**: Clear parameter names at call site
+4. **TypeScript-friendly**: Great type inference and interface support
+5. **Beginner-friendly**: No need to remember parameter order
+6. **IDE-friendly**: Good autocompletion support
+
+### Rationale
+
+This pattern:
+1. Follows p5.js conventions for complex object creation
+2. Provides a clear, consistent API
+3. Makes code more maintainable
+4. Improves developer experience
+5. Allows for future API evolution 
