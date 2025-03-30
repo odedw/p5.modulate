@@ -23,22 +23,48 @@ params:
   themeColor: "#2d333b"
   
   # Social Links
-  github: "yourusername/p5.modulate"
+  github: "odedw/p5.modulate"
   
   # Navigation
-  mainSections: ["docs"]
+  # mainSections: ["docs"]  # Removing this line to make sidebar flat
   
   # Footer
   showPoweredBy: true
   copyright: "© 2024 The p5.modulate Authors"
 
+  homePage:
+    siteLongDescription: "A powerful modulation library for p5.js that brings dynamic capabilities to your creative coding projects."
+    siteLongDescriptionTitle: "About"
+    showRecentPostsBlock: true
+    numOfRecentPosts: 5
+
+  header:
+    title: "p5.modulate"
+    subtitle: "A powerful modulation library for p5.js"
+
 menu:
   main:
-    - identifier: docs
-      name: Documentation
-      url: /docs/
+    - identifier: quickstart
+      name: Quick Start
+      url: /quickstart/
+      weight: 5
+    - identifier: time-function
+      name: Time Functions
+      url: /time-function/
       weight: 10
+    - identifier: lfo
+      name: LFO
+      url: /lfo/
+      weight: 20
+    - identifier: envelope
+      name: Envelope
+      url: /envelope/
+      weight: 30
+    - identifier: sequencer
+      name: Sequencer
+      url: /sequencer/
+      weight: 40
     - identifier: github
       name: GitHub
-      url: https://github.com/yourusername/p5.modulate
-      weight: 30
+      url: https://github.com/odedw/p5.modulate
+      weight: 50

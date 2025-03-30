@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Components on p5.modulate</title>
+    <link>//localhost:1313/components/</link>
+    <description>Recent content in Components on p5.modulate</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="//localhost:1313/components/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>TimeFunction</title>
+      <link>//localhost:1313/components/time-function/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/components/time-function/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>LFO</title>
+      <link>//localhost:1313/components/lfo/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/components/lfo/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Envelope</title>
+      <link>//localhost:1313/components/envelope/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/components/envelope/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Sequencer</title>
+      <link>//localhost:1313/components/sequencer/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/components/sequencer/</guid>
+      <description></description>
+    </item>
+  </channel>
+</rss>

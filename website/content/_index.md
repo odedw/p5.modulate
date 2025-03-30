@@ -1,30 +1,61 @@
 ---
-title: "p5.modulate"
+date: '2025-02-17T21:36:46-06:00'
+draft: true
+title: 'Docs'
 ---
 
-# p5.modulate
+# p5.modulate Documentation
 
-A powerful modulation library for p5.js that brings dynamic capabilities to your creative coding projects.
+Welcome to the p5.modulate documentation. This library provides powerful tools for creating dynamic modulations in your p5.js sketches.
 
-## Features
+## Contents
 
-### Time Functions
-Shape values over time with precise control
+1. [Getting Started](getting-started) - Installation and basic setup
+2. Core Components:
+   - [Time Functions](time-function) - Control timing and easing
+   - [LFO](lfo) - Create cyclic modulations
+   - [Envelope](envelope) - Shape values over time
+   - [Sequencer](sequencer) - Create complex patterns
 
-### LFOs
-Create cyclic modulations for continuous motion
+# Welcome to p5.modulate
 
-### Envelopes
-Design complex value transitions with ADSR envelopes
+p5.modulate is a powerful modulation library for p5.js that enables creative coding with dynamic, time-based modulations. This library provides a suite of tools for creating complex animations, sound modulations, and interactive experiences.
 
-### Sequencers
-Build rhythmic patterns and sequences
+## Getting Started
 
-## Get Started
+To get started with p5.modulate, you'll need:
 
-p5.modulate provides a suite of tools for creating dynamic animations, interactive experiences, and complex modulations with ease.
+1. A basic understanding of p5.js
+2. p5.modulate installed in your project
+3. Some creativity and curiosity!
 
-Whether you're creating interactive art, generative animations, or complex visualizations, p5.modulate gives you the tools 
-to create smooth, precise, and dynamic value changes over time.
+## Core Concepts
 
-[Read the Documentation →](/docs/)
+p5.modulate is built around several core concepts:
+
+- **Envelopes**: Shape values over time
+- **LFOs**: Create cyclic modulations
+- **Time Functions**: Control timing and easing
+- **Sequencers**: Create complex patterns
+
+## Installation
+
+```javascript
+npm install p5.modulate
+```
+
+## Quick Example
+
+```javascript
+import { createEnvelope } from 'p5.modulate';
+
+// Create a simple envelope
+const fadeIn = createEnvelope({
+  attack: 1.0,
+  decay: 0.5,
+  sustain: 0.8,
+  release: 2.0
+});
+```
+
+Explore the documentation to learn more about what p5.modulate can do!

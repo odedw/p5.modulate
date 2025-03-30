@@ -25,7 +25,7 @@
 
     <title>
         
-            My New Hugo Site
+            p5.modulate
         
     </title>
 
@@ -123,7 +123,7 @@
 
     <div class="header_middle">
         
-            My New Hugo Site
+            p5.modulate
         
     </div>
 </header>
@@ -146,54 +146,28 @@
     <ul class="section-tree">
         
             
-                <li
-                    
-                        class="dir closed-dir"
-                    >
-                    <span class="dir-text"> Docs </span>
-
-                    
-
-
-
-    
-    
-
-    
-    
-
-
-    <ul class="section-tree">
-        
-            
-                <li
-                    
-                        class="dir closed-dir"
-                    >
-                    <span class="dir-text"> Getting Started </span>
-
-                    
-
-
-
-    
-    
-
-    
-    
-
-
-    <ul class="section-tree">
-        
-    </ul>
-
-
+                <li class="file">
+                    <a href="//localhost:1313/quickstart/" title="./quickstart/">
+                        
+                            Quick Start
+                        
+                    </a>
                 </li>
             
         
             
                 <li class="file">
-                    <a href="//localhost:1313/docs/lfo/" title="./docs/lfo/">
+                    <a href="//localhost:1313/time-function/" title="./time-function/">
+                        
+                            Time Functions
+                        
+                    </a>
+                </li>
+            
+        
+            
+                <li class="file">
+                    <a href="//localhost:1313/lfo/" title="./lfo/">
                         
                             LFO
                         
@@ -203,7 +177,7 @@
         
             
                 <li class="file">
-                    <a href="//localhost:1313/docs/envelope/" title="./docs/envelope/">
+                    <a href="//localhost:1313/envelope/" title="./envelope/">
                         
                             Envelope
                         
@@ -213,27 +187,11 @@
         
             
                 <li class="file">
-                    <a href="//localhost:1313/docs/sequencer/" title="./docs/sequencer/">
+                    <a href="//localhost:1313/sequencer/" title="./sequencer/">
                         
                             Sequencer
                         
                     </a>
-                </li>
-            
-        
-            
-                <li class="file">
-                    <a href="//localhost:1313/docs/time-function/" title="./docs/time-function/">
-                        
-                            Time Function
-                        
-                    </a>
-                </li>
-            
-        
-    </ul>
-
-
                 </li>
             
         
@@ -245,8 +203,8 @@
 
 
             
-    <article class="main">
-        <button
+<article class="main">
+  <button
     class="sidebar-toggle-btn"
     type="menu"
     aria-expanded="false"
@@ -254,231 +212,90 @@
     <i class="bi bi-list"></i>
 </button>
 
-
-
-        <div class="home">
-            <div class="title">
-                
-
-                
-                    <h1 class="title-caption">My New Hugo Site</h1>
-                
-
-                
-                    <h2 class="subtitle">
-                        A Site Built by Hugo
-                    </h2>
-                
-            </div>
-            <div class="recommend">
-                <div class="left">
-                    <div class="start">
-                        
-                            <h3 class="recommend-title">
-                                Start
-                            </h3>
-                            <p class="long-description">
-                                Hugo is a fast and easy-to-use static website generator written in Go. It renders a complete HTML website from content and templates in a directory, utilizing Markdown files for metadata. It&#39;s optimized for speed and suitable for various website types.
-                            </p>
-                        
-                    </div>
-                    <div class="recent">
-                        
-                            <h3 class="recommend-title">
-                                Recent Posts
-                            </h3>
-                            <ul class="recent-posts-list">
-                                
-                                    
-                                    <li>
-                                        <a
-                                            href="//localhost:1313/docs/lfo/"
-                                            title="./docs/lfo/"
-                                            >LFO</a
-                                        >
-                                        
-                                            <span
-                                                class="recent-posts-items-path"
-                                                title="./docs/lfo/">
-                                                .
-                                                /docs/lfo/
-                                            </span>
-                                        
-                                    </li>
-                                
-                                    
-                                    <li>
-                                        <a
-                                            href="//localhost:1313/docs/envelope/"
-                                            title="./docs/envelope/"
-                                            >Envelope</a
-                                        >
-                                        
-                                            <span
-                                                class="recent-posts-items-path"
-                                                title="./docs/envelope/">
-                                                .
-                                                /docs/envelope/
-                                            </span>
-                                        
-                                    </li>
-                                
-                                    
-                                    <li>
-                                        <a
-                                            href="//localhost:1313/docs/sequencer/"
-                                            title="./docs/sequencer/"
-                                            >Sequencer</a
-                                        >
-                                        
-                                            <span
-                                                class="recent-posts-items-path"
-                                                title="./docs/sequencer/">
-                                                .
-                                                /docs/sequencer/
-                                            </span>
-                                        
-                                    </li>
-                                
-                                    
-                                    <li>
-                                        <a
-                                            href="//localhost:1313/docs/time-function/"
-                                            title="./docs/time-function/"
-                                            >Time Function</a
-                                        >
-                                        
-                                            <span
-                                                class="recent-posts-items-path"
-                                                title="./docs/time-function/">
-                                                .
-                                                /docs/time-function/
-                                            </span>
-                                        
-                                    </li>
-                                
-                            </ul>
-                        
-                    </div>
-                </div>
-                
-                    <div class="right">
-                        <h3 class="recommend-title">
-                            Walkthroughs
-                        </h3>
-                        
+  <div class="content"><h1 id="p5modulate-documentation">p5.modulate Documentation</h1>
+<p>Welcome to the p5.modulate documentation. This library provides powerful tools for creating dynamic modulations in your p5.js sketches.</p>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="getting-started">Getting Started</a> - Installation and basic setup</li>
+<li>Core Components:
+<ul>
+<li><a href="time-function">Time Functions</a> - Control timing and easing</li>
+<li><a href="lfo">LFO</a> - Create cyclic modulations</li>
+<li><a href="envelope">Envelope</a> - Shape values over time</li>
+<li><a href="sequencer">Sequencer</a> - Create complex patterns</li>
+</ul>
+</li>
+</ol>
+<h1 id="welcome-to-p5modulate">Welcome to p5.modulate</h1>
+<p>p5.modulate is a powerful modulation library for p5.js that enables creative coding with dynamic, time-based modulations. This library provides a suite of tools for creating complex animations, sound modulations, and interactive experiences.</p>
+<h2 id="getting-started">Getting Started</h2>
+<p>To get started with p5.modulate, you&rsquo;ll need:</p>
+<ol>
+<li>A basic understanding of p5.js</li>
+<li>p5.modulate installed in your project</li>
+<li>Some creativity and curiosity!</li>
+</ol>
+<h2 id="core-concepts">Core Concepts</h2>
+<p>p5.modulate is built around several core concepts:</p>
+<ul>
+<li><strong>Envelopes</strong>: Shape values over time</li>
+<li><strong>LFOs</strong>: Create cyclic modulations</li>
+<li><strong>Time Functions</strong>: Control timing and easing</li>
+<li><strong>Sequencers</strong>: Create complex patterns</li>
+</ul>
+<h2 id="installation">Installation</h2>
 
 
 
+
+
+
+
+<div class="codeblock">
     
-    
-
-    
-    
-
-
-    <ul class="section-tree">
-        
-            
-                <li
-                    
-                        class="dir closed-dir"
-                    >
-                    <span class="dir-text"> Docs </span>
-
-                    
-
-
-
-    
-    
-
-    
-    
-
-
-    <ul class="section-tree">
-        
-            
-                <li
-                    
-                        class="dir closed-dir"
-                    >
-                    <span class="dir-text"> Getting Started </span>
-
-                    
-
-
-
-    
-    
-
-    
-    
-
-
-    <ul class="section-tree">
-        
-    </ul>
-
-
-                </li>
-            
-        
-            
-                <li class="file">
-                    <a href="//localhost:1313/docs/lfo/" title="./docs/lfo/">
-                        
-                            LFO
-                        
-                    </a>
-                </li>
-            
-        
-            
-                <li class="file">
-                    <a href="//localhost:1313/docs/envelope/" title="./docs/envelope/">
-                        
-                            Envelope
-                        
-                    </a>
-                </li>
-            
-        
-            
-                <li class="file">
-                    <a href="//localhost:1313/docs/sequencer/" title="./docs/sequencer/">
-                        
-                            Sequencer
-                        
-                    </a>
-                </li>
-            
-        
-            
-                <li class="file">
-                    <a href="//localhost:1313/docs/time-function/" title="./docs/time-function/">
-                        
-                            Time Function
-                        
-                    </a>
-                </li>
-            
-        
-    </ul>
-
-
-                </li>
-            
-        
-    </ul>
-
-
-                    </div>
-                
-            </div>
+        <div class="copy-button-box">
+            <button class="copy-button" state="copy" data="npm%20install%20p5.modulate">
+                <i class="bi bi-copy"></i>
+            </button>
         </div>
-    </article>
+    
+
+    
+        <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#a6e22e">npm</span> <span style="color:#a6e22e">install</span> <span style="color:#a6e22e">p5</span>.<span style="color:#a6e22e">modulate</span></span></span></code></pre></div>
+    
+</div>
+<h2 id="quick-example">Quick Example</h2>
+
+
+
+
+
+
+
+<div class="codeblock">
+    
+        <div class="copy-button-box">
+            <button class="copy-button" state="copy" data="import%20%7b%20createEnvelope%20%7d%20from%20%27p5.modulate%27;%0a%0a//%20Create%20a%20simple%20envelope%0aconst%20fadeIn%20=%20createEnvelope%28%7b%0a%20%20attack:%201.0,%0a%20%20decay:%200.5,%0a%20%20sustain:%200.8,%0a%20%20release:%202.0%0a%7d%29;">
+                <i class="bi bi-copy"></i>
+            </button>
+        </div>
+    
+
+    
+        <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> { <span style="color:#a6e22e">createEnvelope</span> } <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#39;p5.modulate&#39;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Create a simple envelope
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">fadeIn</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">createEnvelope</span>({
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">attack</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">1.0</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">decay</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">0.5</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">sustain</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">0.8</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">release</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">2.0</span>
+</span></span><span style="display:flex;"><span>});</span></span></code></pre></div>
+    
+</div>
+<p>Explore the documentation to learn more about what p5.modulate can do!</p>
+</div>
+</article>
 
         </main>
 
@@ -523,7 +340,7 @@
                 <li>
                     
                         Pages:
-                        4
+                        5
                     
                 </li>
             

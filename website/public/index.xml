@@ -1,40 +1,47 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>p5.modulate</title>
+    <title>Docs on p5.modulate</title>
     <link>//localhost:1313/</link>
-    <description>Recent content on p5.modulate</description>
+    <description>Recent content in Docs on p5.modulate</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 17 Feb 2025 21:38:36 -0600</lastBuildDate>
+    <lastBuildDate>Mon, 01 Jan 0001 00:00:00 +0000</lastBuildDate>
     <atom:link href="//localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>LFO</title>
-      <link>//localhost:1313/docs/lfo/</link>
+      <title>Quick Start</title>
+      <link>//localhost:1313/quickstart/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>//localhost:1313/docs/lfo/</guid>
+      <guid>//localhost:1313/quickstart/</guid>
+      <description>&lt;h1 id=&#34;getting-started-with-p5modulate&#34;&gt;Getting Started with p5.modulate&lt;/h1&gt;&#xA;&lt;h2 id=&#34;installation&#34;&gt;Installation&lt;/h2&gt;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&lt;div class=&#34;codeblock&#34;&gt;&#xA;    &#xA;        &lt;div class=&#34;copy-button-box&#34;&gt;&#xA;            &lt;button class=&#34;copy-button&#34; state=&#34;copy&#34; data=&#34;npm%20install%20p5.modulate&#34;&gt;&#xA;                &lt;i class=&#34;bi bi-copy&#34;&gt;&lt;/i&gt;&#xA;            &lt;/button&gt;&#xA;        &lt;/div&gt;&#xA;    &#xA;&#xA;    &#xA;        &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-javascript&#34; data-lang=&#34;javascript&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;npm&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;install&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;p5&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;modulate&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&#xA;    &#xA;&lt;/div&gt;&#xA;&lt;h2 id=&#34;quick-example&#34;&gt;Quick Example&lt;/h2&gt;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&lt;div class=&#34;codeblock&#34;&gt;&#xA;    &#xA;        &lt;div class=&#34;copy-button-box&#34;&gt;&#xA;            &lt;button class=&#34;copy-button&#34; state=&#34;copy&#34; data=&#34;import%20%7b%20createEnvelope%20%7d%20from%20%27p5.modulate%27;%0a%0a//%20Create%20a%20simple%20envelope%0aconst%20fadeIn%20=%20createEnvelope%28%7b%0a%20%20attack:%201.0,%0a%20%20decay:%200.5,%0a%20%20sustain:%200.8,%0a%20%20release:%202.0%0a%7d%29;&#34;&gt;&#xA;                &lt;i class=&#34;bi bi-copy&#34;&gt;&lt;/i&gt;&#xA;            &lt;/button&gt;&#xA;        &lt;/div&gt;&#xA;    &#xA;&#xA;    &#xA;        &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-javascript&#34; data-lang=&#34;javascript&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;import&lt;/span&gt; { &lt;span style=&#34;color:#a6e22e&#34;&gt;createEnvelope&lt;/span&gt; } &lt;span style=&#34;color:#a6e22e&#34;&gt;from&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;p5.modulate&amp;#39;&lt;/span&gt;;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Create a simple envelope&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;fadeIn&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;createEnvelope&lt;/span&gt;({&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;attack&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1.0&lt;/span&gt;,&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;decay&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0.5&lt;/span&gt;,&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;sustain&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0.8&lt;/span&gt;,&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#a6e22e&#34;&gt;release&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2.0&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;});&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&#xA;    &#xA;&lt;/div&gt;&#xA;&lt;h2 id=&#34;prerequisites&#34;&gt;Prerequisites&lt;/h2&gt;&#xA;&lt;p&gt;To get started with p5.modulate, you&amp;rsquo;ll need:&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;A basic understanding of p5.js&lt;/li&gt;&#xA;&lt;li&gt;p5.modulate installed in your project&lt;/li&gt;&#xA;&lt;li&gt;Some creativity and curiosity!&lt;/li&gt;&#xA;&lt;/ol&gt;&#xA;&lt;h2 id=&#34;next-steps&#34;&gt;Next Steps&lt;/h2&gt;&#xA;&lt;p&gt;After installation, explore the core components:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Time Functions - Control timing and easing&lt;/li&gt;&#xA;&lt;li&gt;LFO - Create cyclic modulations&lt;/li&gt;&#xA;&lt;li&gt;Envelope - Shape values over time&lt;/li&gt;&#xA;&lt;li&gt;Sequencer - Create complex patterns&lt;/li&gt;&#xA;&lt;/ul&gt;</description>
+    </item>
+    <item>
+      <title>Time Functions</title>
+      <link>//localhost:1313/time-function/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/time-function/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>LFO</title>
+      <link>//localhost:1313/lfo/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/lfo/</guid>
       <description></description>
     </item>
     <item>
       <title>Envelope</title>
-      <link>//localhost:1313/docs/envelope/</link>
+      <link>//localhost:1313/envelope/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>//localhost:1313/docs/envelope/</guid>
+      <guid>//localhost:1313/envelope/</guid>
       <description></description>
     </item>
     <item>
       <title>Sequencer</title>
-      <link>//localhost:1313/docs/sequencer/</link>
+      <link>//localhost:1313/sequencer/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>//localhost:1313/docs/sequencer/</guid>
+      <guid>//localhost:1313/sequencer/</guid>
       <description></description>
-    </item>
-    <item>
-      <title>Time Function</title>
-      <link>//localhost:1313/docs/time-function/</link>
-      <pubDate>Mon, 17 Feb 2025 21:38:36 -0600</pubDate>
-      <guid>//localhost:1313/docs/time-function/</guid>
-      <description>&lt;hr&gt;&#xA;&lt;h2 id=&#34;time-based-function-modulation-in-p5modulate&#34;&gt;title: &amp;ldquo;TimeFunction&amp;rdquo;&#xA;linkTitle: &amp;ldquo;TimeFunction&amp;rdquo;&#xA;weight: 10&#xA;description: &amp;gt;&#xA;Time-based function modulation in p5.modulate&lt;/h2&gt;</description>
     </item>
   </channel>
 </rss>
